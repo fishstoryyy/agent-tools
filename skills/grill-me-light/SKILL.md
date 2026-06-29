@@ -11,7 +11,8 @@ Sharpen the user's plan through a short, high-signal interview. Preserve the ori
 
 ## Core Rules
 
-- Ask at most five question turns by default.
+- Use five question turns as the default interview budget.
+- Ask no more than ten question turns unless the user explicitly requests a deeper grilling session.
 - Ask one question turn at a time, then wait for the user's answer.
 - Include your recommended answer with each question.
 - Ask fewer than five questions when enough is already clear.
@@ -23,20 +24,25 @@ Sharpen the user's plan through a short, high-signal interview. Preserve the ori
 
 Track question count explicitly in your reasoning. A "question turn" is one message that asks the user for a decision or missing fact.
 
-You may ask more than five only when all are true:
+Questions one through five are the normal budget. Continue with questions six through ten only when all are true:
 
 - The missing answer materially changes architecture, scope, data model, security, cost, migration strategy, or user-facing behavior.
 - A wrong assumption would be expensive to unwind.
-- You state why the extra question is worth breaking the cap before asking it.
+- You state why extending the interview is worthwhile before asking question six.
 
-When asking an extra question, use this shape:
+Make the checkpoint and question six a single turn so the checkpoint does not add another interaction. Use this shape:
 
 ```text
-I have hit the five-question cap. I think one more question is worth it because <reason>.
+I have reached the default five-question budget. I recommend continuing because <reason>. You can answer the next question or tell me to proceed with the current assumptions.
 
-Question 6: <question>
+Question 6/10: <question>
+Options:
+- A. <option and consequence>
+- B. <option and consequence>
 Recommended answer: <recommendation>
 ```
+
+After question six, continue only while each remaining question meets the same materiality and unwind-cost criteria. Stop at ten and proceed with stated assumptions unless the user explicitly asks for deeper grilling.
 
 ## Workflow
 
@@ -44,7 +50,7 @@ Recommended answer: <recommendation>
 2. Identify the highest-risk uncertainty that would most change execution.
 3. Ask the next best question with a recommended answer.
 4. After each user answer, update the working plan and decide whether another question is still worth asking.
-5. Stop when the remaining unknowns can be handled with assumptions, or when five question turns have been used.
+5. Stop when the remaining unknowns can be handled with assumptions. After five question turns, continue only under the extension criteria; stop at ten unless the user explicitly asks for deeper grilling.
 6. Produce an alignment brief, then offer the post-brief options.
 
 ## Question Style
