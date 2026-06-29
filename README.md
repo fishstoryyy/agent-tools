@@ -1,5 +1,7 @@
 # Agent Tools
 
+[![Validate](https://github.com/fishstoryyy/agent-tools/actions/workflows/validate.yml/badge.svg)](https://github.com/fishstoryyy/agent-tools/actions/workflows/validate.yml)
+
 Personal open-source toolkit for agent skills and other agentic tools.
 
 This repo starts with `grill-me-light`, a bounded planning and alignment skill that helps an agent stress-test a plan without turning the conversation into an endless interview.
@@ -26,7 +28,7 @@ agent-tools/
 
 ## Install
 
-After publishing this repo to GitHub, the expected install flow is:
+Install `grill-me-light` from the published GitHub repo:
 
 ```bash
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light
@@ -38,13 +40,13 @@ To list available skills before installing:
 npx skills@latest add fishstoryyy/agent-tools -l
 ```
 
-Local CLI discovery has been verified with:
+Local CLI discovery can be tested with:
 
 ```bash
 npx skills@latest add . -l
 ```
 
-The published repo install command should be re-verified after each release.
+Published discovery and installation were verified on June 29, 2026. Re-verify them after each release.
 
 ## Validate
 
