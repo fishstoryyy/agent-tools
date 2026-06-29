@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grill Me Light"
+  short_description: "Bounded plan grilling with clear alignment"
+  default_prompt: "Use $grill-me-light to stress-test my plan without asking more than five questions unless it is truly worth it."

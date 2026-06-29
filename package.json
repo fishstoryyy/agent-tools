@@ -1,0 +1,11 @@
+{
+  "name": "agent-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal open-source toolkit for agent skills and agentic tools.",
+  "type": "module",
+  "scripts": {
+    "validate:skills": "node scripts/validate-skills.mjs"
+  },
+  "license": "MIT"
+}
