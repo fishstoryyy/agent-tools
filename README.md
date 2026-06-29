@@ -29,13 +29,13 @@ agent-tools/
 After publishing this repo to GitHub, the expected install flow is:
 
 ```bash
-npx skills@latest add <github-owner>/agent-tools --skill grill-me-light
+npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light
 ```
 
 To list available skills before installing:
 
 ```bash
-npx skills@latest add <github-owner>/agent-tools -l
+npx skills@latest add fishstoryyy/agent-tools -l
 ```
 
 Local CLI discovery has been verified with:
@@ -44,7 +44,7 @@ Local CLI discovery has been verified with:
 npx skills@latest add . -l
 ```
 
-Before announcing the command publicly, verify the same install command against the published GitHub repo.
+The published repo install command should be re-verified after each release.
 
 ## Validate
 

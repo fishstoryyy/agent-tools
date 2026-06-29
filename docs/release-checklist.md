@@ -23,8 +23,8 @@ Use this checklist before publishing a new skill or repo release.
 ## Install Verification
 
 - [ ] Publish or push the repo to GitHub.
-- [ ] List published skills with `npx skills@latest add <github-owner>/agent-tools -l`.
-- [ ] Test the install command with `npx skills@latest add <github-owner>/agent-tools --skill grill-me-light`.
+- [ ] List published skills with `npx skills@latest add fishstoryyy/agent-tools -l`.
+- [ ] Test the install command with `npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light`.
 - [ ] Record the verified install command in `README.md`.
 - [ ] Confirm the installed skill appears with the expected name and description.
 - [ ] Run a small usage test for the installed skill.
