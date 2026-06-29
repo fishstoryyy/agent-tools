@@ -60,6 +60,10 @@ This checks that every skill folder under `skills/` has a valid `SKILL.md`, requ
 
 See [`docs/release-checklist.md`](docs/release-checklist.md).
 
+## Publishing
+
+See [`docs/publish-to-github.md`](docs/publish-to-github.md) for the GitHub publish and install-verification flow.
+
 ## License
 
 MIT. See [`LICENSE`](LICENSE).

@@ -4,6 +4,7 @@ Use this checklist before publishing a new skill or repo release.
 
 ## Repository
 
+- [ ] Authenticate GitHub CLI with `gh auth login -h github.com`.
 - [ ] Confirm the repo is public.
 - [ ] Confirm `README.md` explains the repo purpose and skill list.
 - [ ] Confirm `LICENSE` is present.
