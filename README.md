@@ -15,6 +15,9 @@ agent-tools/
     prepare-adversarial-review/
       SKILL.md
       agents/openai.yaml
+    prepare-adversarial-review-light/
+      SKILL.md
+      agents/openai.yaml
   tools/
   templates/
   docs/
@@ -27,6 +30,7 @@ agent-tools/
 | --- | --- |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Bounded plan grilling with a five-question default cap, recommendations, alignment brief, and handoff support. |
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Proportional context handoff and launch prompt for independent adversarial review or third-line audit. |
+| [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight context handoff and launch prompt for independent adversarial review or third-line audit. |
 
 ## Install
 
@@ -35,6 +39,7 @@ Install a skill from the published GitHub repo:
 ```bash
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
+npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review-light
 ```
 
 To list available skills before installing:

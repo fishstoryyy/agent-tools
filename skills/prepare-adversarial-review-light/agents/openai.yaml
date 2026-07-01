@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Adversarial Review Light"
+  short_description: "Prepare context-rich adversarial reviews"
+  default_prompt: "Use $prepare-adversarial-review-light to prepare this work for an independent adversarial review."
