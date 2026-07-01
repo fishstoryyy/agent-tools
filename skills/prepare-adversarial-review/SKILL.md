@@ -1,38 +1,51 @@
 ---
 name: prepare-adversarial-review
-description: Create a high-fidelity Markdown review dossier and ready-to-send launch prompt that transfer session context, decisions, artifacts, evidence, and an adaptive review mandate to a fresh independent adversarial reviewer. Use when the user wants a plan, implementation, analysis, strategy, design, research result, or other agent work prepared for second-line review; asks for a review handoff or context pack; or wants the current context-rich agent to brief a separate reviewer whose work may later be audited.
+description: Create a proportional, high-fidelity Markdown dossier and ready-to-send launch prompt for either a fresh adversarial reviewer or a third-line audit agent. Use when the user wants a plan, implementation, analysis, strategy, design, research result, or other agent work prepared for independent review; asks for a review handoff or context pack; or wants a completed adversarial review prepared for an independent audit session.
 ---
 
 # Prepare Adversarial Review
 
 ## Overview
 
-Prepare an evidence-rich handoff that lets a fresh reviewer understand the work quickly and challenge it independently. Preserve operational context without turning the original agent's framing or self-critique into the review agenda.
+Prepare an evidence-rich handoff that lets a fresh evaluator understand the relevant work quickly and assess it independently. Preserve operational context without turning the preparing agent's framing or self-critique into the evaluation agenda.
 
 Produce two outputs:
 
 1. A Markdown review dossier saved in the workspace.
-2. A ready-to-send prompt that launches the adversarial review in a fresh session.
+2. A ready-to-send prompt that launches the review or audit in a fresh session.
 
 ## Core Principles
 
 - Optimize for transfer fidelity and operational continuity, not arbitrary brevity.
+- Scale depth and structure to the complexity, risk, and context actually present. A short conversation or simple change should produce a short dossier.
+- Treat every checklist and section list in this skill as a menu of considerations, not a quota.
+- Omit inapplicable material without creating empty sections or inventing constraints, decisions, alternatives, risks, or verification.
+- Use best judgment to emphasize what will materially help the next agent become effective.
 - Treat the dossier as a map to evidence, not as evidence by itself.
-- Separate verified facts, inferences, user constraints, prior decisions, and author concerns.
-- Preserve immutable user constraints while allowing the reviewer to challenge prior decisions.
+- Separate verified facts, inferences, user constraints, prior decisions, and preparer concerns when those distinctions matter.
+- Preserve immutable user constraints while allowing the receiving evaluator to challenge prior decisions.
 - Prefer repository-relative paths and immutable identifiers; add absolute paths as same-workspace conveniences.
 - Verify accessible references before listing them. Mark anything missing, stale, unverified, or inaccessible.
 - Never include secrets, credentials, private data, or large copied artifacts when a safe reference is sufficient.
 - Do not modify the work under review while preparing the dossier, except to create the requested dossier.
 - Do not ask the user for information recoverable from the conversation, workspace, version control, commands, or linked artifacts.
 
+## Choose the Handoff Stage
+
+Infer the stage from context. Ask only when the intended recipient is genuinely ambiguous.
+
+- **Second-line review:** Prepare the original work for an independent adversarial reviewer. The review will return to the original agent for response or remediation.
+- **Third-line audit:** Prepare a completed adversarial review for an independent audit agent. Include the original work and prior dossier as underlying evidence so the auditor can assess the review's rigor, independence, coverage, fairness, and evidentiary support.
+
+In audit mode, treat the completed review as the primary object under evaluation and the original work as necessary reference evidence. Adapt role labels throughout: reviewer becomes preparer, and auditor becomes receiving evaluator.
+
 ## Workflow
 
-### 1. Fix the review boundary
+### 1. Fix the evaluation boundary
 
 Identify:
 
-- The exact plan, solution, implementation, analysis, or claim under review.
+- The exact plan, solution, implementation, analysis, claim, or completed review under evaluation.
 - Its current state: proposed, partially implemented, completed, tested, or deployed.
 - The version being reviewed: repository, branch, commit, worktree state, document version, dataset snapshot, or timestamp as applicable.
 - What is in scope, out of scope, and explicitly deferred.
@@ -68,9 +81,9 @@ For each important resource, provide its role, locator, version or freshness, an
 
 Never imply that a command was run, a link was read, or a result was verified when it was not. Label recollection from conversation separately from inspected evidence.
 
-### 4. Derive the review mandate
+### 4. Derive the evaluation mandate
 
-Create a compact universal review baseline:
+Select only relevant concerns from a compact universal baseline:
 
 - Correctness and internal consistency.
 - Fidelity to requirements and constraints.
@@ -80,7 +93,7 @@ Create a compact universal review baseline:
 - Reproducibility, provenance, and adequacy of verification.
 - Simpler alternatives and unnecessary complexity.
 
-Then derive domain-specific attack surfaces from the actual work. Do not force every domain through a static checklist. Examples include:
+Then derive domain-specific attack surfaces from the actual work when useful. Do not force every domain through a static checklist. Examples include:
 
 - Quantitative research: lookahead and target leakage, survivorship or selection bias, overfitting, multiple testing, regime dependence, data provenance, costs and liquidity, robustness, and reproducibility.
 - Software: behavioral regressions, error handling, concurrency, interfaces, state transitions, security, performance, maintainability, and missing tests.
@@ -88,16 +101,18 @@ Then derive domain-specific attack surfaces from the actual work. Do not force e
 - Plans and designs: invalid premises, missing stakeholders, sequencing, feasibility, incentives, dependencies, and irreversible choices.
 - Analysis and research: source quality, causal overreach, alternative explanations, sensitivity, missing counterevidence, and uncertainty.
 
-Phrase these as areas requiring independent investigation, not conclusions the reviewer should inherit.
+For a third-line audit, consider whether the review was independent, sufficiently scoped, evidence-backed, reproducible, proportionate, fair to counterevidence, clear about limitations, and capable of surfacing material issues. Check for unsupported findings and consequential risks the review missed.
+
+Phrase all suggested attack surfaces as optional starting points for independent investigation, not boundaries or conclusions the receiving agent should inherit. Explicitly invite the receiving agent to identify important risks outside the dossier's framing.
 
 ### 5. Write the dossier
 
-Use a descriptive filename such as `reviews/<work-slug>-adversarial-review.md` unless the user specifies a path or the repository has an established convention. Create parent directories when needed.
+Use a descriptive filename such as `reviews/<work-slug>-adversarial-review.md` for second-line review or `reviews/<review-slug>-audit.md` for third-line audit, unless the user specifies a path or the repository has an established convention. Create parent directories when needed.
 
-Use this structure, adapting sections only when they are genuinely inapplicable:
+Choose, combine, rename, or omit sections according to the situation. Do not add `N/A` placeholders. A simple review may need only an orientation, review object, evidence map, mandate, and output request. A complex review may benefit from the fuller menu below:
 
 ```markdown
-# Adversarial Review Dossier: <work>
+# Evaluation Dossier: <work or review>
 
 ## Review Mandate
 ## Executive Orientation
@@ -114,41 +129,43 @@ Use this structure, adapting sections only when they are genuinely inapplicable:
 ## Adaptive Threat Model
 ## Known Gaps and Access Limitations
 ## Independence Protocol
-## Required Reviewer Output
+## Requested Evaluation Output
 ## Review Lifecycle and Third-Line Audit
-## Author Self-Critique - Read Only After Independent Pass
+## Preparer Self-Critique - Read Only After Independent Pass
 ```
 
 Use tables where they improve scanability, especially for decisions, claims, resources, and verification. Include enough detail to prevent the reviewer from having to rediscover consequential context, but link to source artifacts instead of duplicating them wholesale.
 
-### 6. Protect reviewer independence
+### 6. Protect evaluator independence
 
-In the dossier and launch prompt, instruct the reviewer to:
+In the dossier and launch prompt, instruct the receiving reviewer or auditor to:
 
 1. Treat all summaries and rationales as claims to verify.
 2. Inspect the primary evidence.
-3. Form and record an independent risk map before reading the author self-critique.
-4. Avoid letting the self-critique narrow the review surface or substitute for original investigation.
+3. Begin with an independent assessment before reading the preparer's self-critique. For complex work, record an initial risk or audit map; for simple work, do not add ceremony solely to satisfy this step.
+4. Avoid letting the dossier's threat model or self-critique narrow the evaluation surface or substitute for original investigation.
 5. Respect immutable user constraints but challenge prior decisions when evidence warrants it.
 6. Seek disconfirming evidence and distinguish defects from preferences.
 7. Remain read-only unless the user separately authorizes repairs.
 
-Place the author self-critique last. Label it as potentially biased supplemental input. Include suspected weaknesses, uncertain reasoning, untested assumptions, and places where the author may have overfit to the conversation, but do not present them as established findings.
+When meaningful self-critique exists, place it last and label it as potentially biased supplemental input. Include suspected weaknesses, uncertain reasoning, untested assumptions, and places where the preparer may have overfit to prior context, but do not present them as established findings. Omit this section when there is no useful self-critique rather than manufacturing one.
 
-### 7. Specify an auditable reviewer output
+### 7. Specify an auditable output
 
-State that the review will return to the original agent for response or remediation and will then be evaluated by a third-line audit agent. Require the reviewer to produce a findings-first report with:
+For second-line review, state that the report will return to the original agent for response or remediation and will then be evaluated by a third-line audit agent. Request a findings-first report scaled to the work's complexity and risk. Use the following as guidance, not mandatory fields for trivial observations:
 
-- Findings ordered by severity and supported by precise references.
-- For each finding: claim, evidence, reasoning, impact, conditions, confidence, and a concrete verification or remediation path.
+- Material findings ordered by severity and supported by precise references.
+- Enough evidence, reasoning, impact, conditions, confidence, and verification or remediation detail to make each material finding actionable.
 - Clear separation of observed facts, inferences, and unresolved suspicions.
-- Counterevidence or mitigating factors that were considered.
-- Exact commands and material outputs from checks performed.
-- A coverage ledger of artifacts inspected, checks run, areas not reviewed, and access limitations.
-- Open questions and residual risks.
+- Relevant counterevidence or mitigating factors.
+- Exact commands and material outputs when checks were performed.
+- A proportionate coverage note identifying what was inspected, what was not, and meaningful access limitations.
+- Open questions and residual risks when any remain.
 - An explicit statement when no material issue is found, without inventing findings to appear adversarial.
 
 The report must leave enough traceability for the original agent to respond point by point and for the audit agent to evaluate the review's rigor, independence, coverage, and evidentiary support.
+
+For third-line audit, require an audit-first report that evaluates the completed review itself. Cover material omissions, unsupported or overstated findings, evidence quality, reproducibility, independence, scope, proportionality, treatment of counterevidence, and usefulness to the original agent. Distinguish defects in the review from newly discovered defects in the underlying work.
 
 ### 8. Generate the launch prompt
 
@@ -156,24 +173,25 @@ After saving the dossier, provide its path and a fenced, ready-to-send prompt. T
 
 - The dossier path and repository or workspace root.
 - An instruction to read the dossier and inspect primary evidence.
-- The read-only, evidence-seeking mandate.
-- The independent-risk-map requirement before reading the self-critique.
+- The stage-specific, read-only, evidence-seeking mandate.
+- The requirement to begin independently before reading the self-critique.
 - The distinction between immutable constraints and challengeable decisions.
-- The required findings-first, auditable output.
-- Notice that the review returns to the original agent and will undergo third-line audit.
+- The stage-appropriate, auditable output.
+- The report's lifecycle: second-line review returning to the original agent and audit, or third-line audit evaluating the completed review.
 - Any environment setup or first commands needed to begin.
 
 Use this shape:
 
 ```text
-Act as the independent second-line adversarial reviewer for <work>.
+Act as the independent <second-line adversarial reviewer | third-line audit agent> for <work or review>.
 
 Start by reading <dossier path>. The relevant workspace is <root>.
 Treat the dossier as a context and evidence map, not as authoritative analysis.
 
 <tailored investigation and independence instructions>
 
-Your review will be returned to the original agent for response and then audited by a third-line agent. Produce an evidence-backed, findings-first report with a complete coverage ledger. Do not modify the reviewed work.
+<stage-specific lifecycle and output instructions>
+Produce an evidence-backed report with a proportionate coverage note. Do not modify the evaluated work.
 ```
 
 Do not merely tell the reviewer to "review thoroughly." Give enough operational direction to begin immediately.
@@ -183,12 +201,14 @@ Do not merely tell the reviewer to "review thoroughly." Give enough operational 
 Before responding, verify that:
 
 - The dossier exists at the stated path.
-- The review object and version are unambiguous.
-- Important paths and links are valid or clearly marked unverified.
-- Facts, inferences, constraints, decisions, and self-critique are distinguishable.
-- The adaptive threat model fits the work.
-- The self-critique appears last and cannot silently define the review agenda.
-- The reviewer output is actionable by the original agent and auditable by the third line.
+- The handoff stage, evaluation object, and relevant version are clear enough for the task.
+- Important referenced paths and links are valid or clearly marked unverified.
+- Facts and inferences are distinguishable; constraints, decisions, and self-critique are separated when they exist.
+- Any suggested threat model fits the work without limiting independent investigation.
+- Any self-critique appears last and cannot silently define the evaluation agenda.
+- The requested output is useful to its recipient and auditable when applicable.
 - The launch prompt references the correct dossier and workspace.
+
+Apply these checks proportionally. Do not add content solely to satisfy a checklist item that is irrelevant to the actual handoff.
 
 Return the dossier path followed by the ready-to-send prompt.

@@ -26,7 +26,7 @@ agent-tools/
 | Skill | Description |
 | --- | --- |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Bounded plan grilling with a five-question default cap, recommendations, alignment brief, and handoff support. |
-| [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Evidence-rich context handoff and launch prompt for independent, auditable adversarial review. |
+| [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Proportional context handoff and launch prompt for independent adversarial review or third-line audit. |
 
 ## Install
 
