@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Adversarial Review"
+  short_description: "Build an evidence-rich adversarial review handoff"
+  default_prompt: "Use $prepare-adversarial-review to create a review dossier and launch prompt for an independent adversarial reviewer."

@@ -4,14 +4,15 @@
 
 Personal open-source toolkit for agent skills and other agentic tools.
 
-This repo starts with `grill-me-light`, a bounded planning and alignment skill that helps an agent stress-test a plan without turning the conversation into an endless interview.
-
 ## Repository Layout
 
 ```text
 agent-tools/
   skills/
     grill-me-light/
+      SKILL.md
+      agents/openai.yaml
+    prepare-adversarial-review/
       SKILL.md
       agents/openai.yaml
   tools/
@@ -25,13 +26,15 @@ agent-tools/
 | Skill | Description |
 | --- | --- |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Bounded plan grilling with a five-question default cap, recommendations, alignment brief, and handoff support. |
+| [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Evidence-rich context handoff and launch prompt for independent, auditable adversarial review. |
 
 ## Install
 
-Install `grill-me-light` from the published GitHub repo:
+Install a skill from the published GitHub repo:
 
 ```bash
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light
+npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
 ```
 
 To list available skills before installing:
@@ -46,7 +49,7 @@ Local CLI discovery can be tested with:
 npx skills@latest add . -l
 ```
 
-Published discovery and installation were verified on June 29, 2026. Re-verify them after each release.
+Published discovery and installation were verified on June 30, 2026. Re-verify them after each release.
 
 ## Validate
 
