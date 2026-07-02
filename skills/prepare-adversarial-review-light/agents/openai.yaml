@@ -1,4 +1,4 @@
 interface:
   display_name: "Prepare Adversarial Review Light"
-  short_description: "Prepare context-rich adversarial reviews"
+  short_description: "Lightweight closed-loop review handoffs"
   default_prompt: "Use $prepare-adversarial-review-light to prepare this work for an independent adversarial review."
