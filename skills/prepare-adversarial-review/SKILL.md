@@ -19,6 +19,8 @@ Produce two outputs:
 - Optimize for transfer fidelity and operational continuity, not arbitrary brevity.
 - Put all context, evidence, constraints, process instructions, and output expectations in the dossier. Treat it as the complete handoff artifact.
 - Keep the launch prompt as a pointer, not a second handoff document. Do not repeat or summarize dossier content in it.
+- Require the receiving evaluator to save the substantive report as Markdown. Treat that file, not the chat response, as the canonical review or audit artifact.
+- Close the loop with a concise relay prompt that points the upstream agent to the report and asks it to respond or improve the work.
 - Scale depth and structure to the complexity, risk, and context actually present. A short conversation or simple change should produce a short dossier.
 - Treat every checklist and section list in this skill as a menu of considerations, not a quota.
 - Omit inapplicable material without creating empty sections or inventing constraints, decisions, alternatives, risks, or verification.
@@ -152,7 +154,14 @@ In the dossier and launch prompt, instruct the receiving reviewer or auditor to:
 
 When meaningful self-critique exists, place it last and label it as potentially biased supplemental input. Include suspected weaknesses, uncertain reasoning, untested assumptions, and places where the preparer may have overfit to prior context, but do not present them as established findings. Omit this section when there is no useful self-critique rather than manufacturing one.
 
-### 7. Specify an auditable output
+### 7. Specify an auditable output and return handoff
+
+Require the receiving evaluator to produce two outputs:
+
+1. A substantive Markdown report saved in the workspace.
+2. A concise ready-to-send relay prompt for the upstream agent.
+
+Use the repository's established artifact location when one exists. Otherwise, suggest a clear path such as `reviews/<work-slug>-review-report.md` for second-line review or `reviews/<review-slug>-audit-report.md` for third-line audit. The evaluator must verify that the file exists before responding.
 
 For second-line review, state that the report will return to the original agent for response or remediation and will then be evaluated by a third-line audit agent. Request a findings-first report scaled to the work's complexity and risk. Use the following as guidance, not mandatory fields for trivial observations:
 
@@ -169,6 +178,23 @@ The report must leave enough traceability for the original agent to respond poin
 
 For third-line audit, require an audit-first report that evaluates the completed review itself. Cover material omissions, unsupported or overstated findings, evidence quality, reproducibility, independence, scope, proportionality, treatment of counterevidence, and usefulness to the original agent. Distinguish defects in the review from newly discovered defects in the underlying work.
 
+After saving the report, require the evaluator's chat response to contain only:
+
+- The report path.
+- A fenced relay prompt of two to four short sentences and no more than 100 words.
+
+For second-line review, address the relay prompt to the original agent. Tell it to read the report, address each material finding, improve the work where warranted, verify the changes, and document evidence-backed disagreements. For third-line audit, address the relay prompt to the reviewed reviewer and tell it to read the audit report and strengthen or correct the review. Do not repeat the findings in the relay prompt.
+
+Use these shapes:
+
+```text
+Read and act on <review report path>. Address each material finding, improve the work where warranted, verify the changes, and document any evidence-backed disagreement. Keep the report as the source of truth rather than relying on this prompt.
+```
+
+```text
+Read and act on <audit report path>. Correct unsupported findings, investigate material omissions, and strengthen the review with traceable evidence. Keep the audit report as the source of truth rather than relying on this prompt.
+```
+
 ### 8. Generate the launch prompt
 
 Before generating the prompt, ensure the dossier itself contains everything the receiving agent needs to restore context, begin work, preserve independence, and produce the requested output. If the prompt seems to need substantive explanation, move that explanation into the dossier.
@@ -179,17 +205,18 @@ After saving the dossier, provide its path and a fenced, ready-to-send prompt. D
 - The dossier path.
 - An instruction to read and follow the dossier as the complete context and mandate.
 - A brief instruction to work independently and inspect primary evidence.
+- A brief instruction to save the report as Markdown and return its path plus a concise relay prompt.
 
 Add access or environment setup only when the agent cannot reach the dossier without it. Do not restate the objective, decisions, evidence map, threat model, lifecycle, detailed review method, or output schema.
 
 Use one of these shapes:
 
 ```text
-Act as the independent second-line adversarial reviewer. Read and follow <dossier path>; it contains the complete context, evidence map, review mandate, and output requirements. Work independently and verify the primary evidence.
+Act as the independent second-line adversarial reviewer. Read and follow <dossier path>; it contains the complete context and mandate. Work independently and verify primary evidence. When finished, save the review as Markdown and reply only with its path and a concise prompt for the original agent.
 ```
 
 ```text
-Act as the independent third-line audit agent. Read and follow <dossier path>; it contains the complete context, evidence map, audit mandate, and output requirements. Audit independently and verify the primary evidence.
+Act as the independent third-line audit agent. Read and follow <dossier path>; it contains the complete context and mandate. Audit independently and verify primary evidence. When finished, save the audit as Markdown and reply only with its path and a concise prompt for the reviewed agent.
 ```
 
 Do not add a miniature dossier to the prompt.
@@ -205,6 +232,8 @@ Before responding, verify that:
 - Any suggested threat model fits the work without limiting independent investigation.
 - Any self-critique appears last and cannot silently define the evaluation agenda.
 - The requested output is useful to its recipient and auditable when applicable.
+- The dossier requires the receiving evaluator to save a canonical Markdown report and verify that it exists.
+- The dossier requires a concise relay prompt addressed to the correct upstream agent.
 - The launch prompt references the correct dossier and workspace.
 - The dossier is sufficient without supplemental context from the launch prompt.
 - The launch prompt is concise and does not duplicate the dossier.
