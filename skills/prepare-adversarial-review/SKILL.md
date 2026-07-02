@@ -1,6 +1,6 @@
 ---
 name: prepare-adversarial-review
-description: Create a proportional, high-fidelity Markdown dossier and ready-to-send launch prompt for either a fresh adversarial reviewer or a third-line audit agent. Use when the user wants a plan, implementation, analysis, strategy, design, research result, or other agent work prepared for independent review; asks for a review handoff or context pack; or wants a completed adversarial review prepared for an independent audit session.
+description: Create a proportional, high-fidelity Markdown dossier and concise ready-to-send launch prompt for either a fresh adversarial reviewer or a third-line audit agent. Use when the user wants a plan, implementation, analysis, strategy, design, research result, or other agent work prepared for independent review; asks for a review handoff or context pack; or wants a completed adversarial review prepared for an independent audit session.
 ---
 
 # Prepare Adversarial Review
@@ -12,11 +12,13 @@ Prepare an evidence-rich handoff that lets a fresh evaluator understand the rele
 Produce two outputs:
 
 1. A Markdown review dossier saved in the workspace.
-2. A ready-to-send prompt that launches the review or audit in a fresh session.
+2. A concise ready-to-send prompt that points the next agent to the dossier.
 
 ## Core Principles
 
 - Optimize for transfer fidelity and operational continuity, not arbitrary brevity.
+- Put all context, evidence, constraints, process instructions, and output expectations in the dossier. Treat it as the complete handoff artifact.
+- Keep the launch prompt as a pointer, not a second handoff document. Do not repeat or summarize dossier content in it.
 - Scale depth and structure to the complexity, risk, and context actually present. A short conversation or simple change should produce a short dossier.
 - Treat every checklist and section list in this skill as a menu of considerations, not a quota.
 - Omit inapplicable material without creating empty sections or inventing constraints, decisions, alternatives, risks, or verification.
@@ -169,32 +171,28 @@ For third-line audit, require an audit-first report that evaluates the completed
 
 ### 8. Generate the launch prompt
 
-After saving the dossier, provide its path and a fenced, ready-to-send prompt. Tailor the prompt to the review object and include:
+Before generating the prompt, ensure the dossier itself contains everything the receiving agent needs to restore context, begin work, preserve independence, and produce the requested output. If the prompt seems to need substantive explanation, move that explanation into the dossier.
 
-- The dossier path and repository or workspace root.
-- An instruction to read the dossier and inspect primary evidence.
-- The stage-specific, read-only, evidence-seeking mandate.
-- The requirement to begin independently before reading the self-critique.
-- The distinction between immutable constraints and challengeable decisions.
-- The stage-appropriate, auditable output.
-- The report's lifecycle: second-line review returning to the original agent and audit, or third-line audit evaluating the completed review.
-- Any environment setup or first commands needed to begin.
+After saving the dossier, provide its path and a fenced, ready-to-send prompt. Default to two to four short sentences and no more than 100 words. Include only:
 
-Use this shape:
+- The receiving role.
+- The dossier path.
+- An instruction to read and follow the dossier as the complete context and mandate.
+- A brief instruction to work independently and inspect primary evidence.
+
+Add access or environment setup only when the agent cannot reach the dossier without it. Do not restate the objective, decisions, evidence map, threat model, lifecycle, detailed review method, or output schema.
+
+Use one of these shapes:
 
 ```text
-Act as the independent <second-line adversarial reviewer | third-line audit agent> for <work or review>.
-
-Start by reading <dossier path>. The relevant workspace is <root>.
-Treat the dossier as a context and evidence map, not as authoritative analysis.
-
-<tailored investigation and independence instructions>
-
-<stage-specific lifecycle and output instructions>
-Produce an evidence-backed report with a proportionate coverage note. Do not modify the evaluated work.
+Act as the independent second-line adversarial reviewer. Read and follow <dossier path>; it contains the complete context, evidence map, review mandate, and output requirements. Work independently and verify the primary evidence.
 ```
 
-Do not merely tell the reviewer to "review thoroughly." Give enough operational direction to begin immediately.
+```text
+Act as the independent third-line audit agent. Read and follow <dossier path>; it contains the complete context, evidence map, audit mandate, and output requirements. Audit independently and verify the primary evidence.
+```
+
+Do not add a miniature dossier to the prompt.
 
 ## Completion Check
 
@@ -208,6 +206,8 @@ Before responding, verify that:
 - Any self-critique appears last and cannot silently define the evaluation agenda.
 - The requested output is useful to its recipient and auditable when applicable.
 - The launch prompt references the correct dossier and workspace.
+- The dossier is sufficient without supplemental context from the launch prompt.
+- The launch prompt is concise and does not duplicate the dossier.
 
 Apply these checks proportionally. Do not add content solely to satisfy a checklist item that is irrelevant to the actual handoff.
 
