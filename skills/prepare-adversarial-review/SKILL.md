@@ -25,6 +25,7 @@ Produce two outputs:
 - Treat every checklist and section list in this skill as a menu of considerations, not a quota.
 - Omit inapplicable material without creating empty sections or inventing constraints, decisions, alternatives, risks, or verification.
 - Use best judgment to emphasize what will materially help the next agent become effective.
+- Aim to discover real defects, material risks, consequential omissions, and plausible failure modes, not to maximize the number of findings. Do not elevate personal taste, cosmetic nits, harmless deviations, or remote hypotheticals unless they create a meaningful problem.
 - Treat the dossier as a map to evidence, not as evidence by itself.
 - Separate verified facts, inferences, user constraints, prior decisions, and preparer concerns when those distinctions matter.
 - Preserve immutable user constraints while allowing the receiving evaluator to challenge prior decisions.
@@ -174,7 +175,7 @@ For second-line review, state that the report will return to the original agent 
 - Open questions and residual risks when any remain.
 - An explicit statement when no material issue is found, without inventing findings to appear adversarial.
 
-The report must leave enough traceability for the original agent to respond point by point and for the audit agent to evaluate the review's rigor, independence, coverage, and evidentiary support.
+Separate optional improvements from actual findings and omit trivial nits that would not meaningfully improve correctness, safety, reliability, maintainability, or fitness for purpose. The report must leave enough traceability for the original agent to respond point by point and for the audit agent to evaluate the review's rigor, independence, coverage, and evidentiary support.
 
 For third-line audit, require an audit-first report that evaluates the completed review itself. Cover material omissions, unsupported or overstated findings, evidence quality, reproducibility, independence, scope, proportionality, treatment of counterevidence, and usefulness to the original agent. Distinguish defects in the review from newly discovered defects in the underlying work.
 
