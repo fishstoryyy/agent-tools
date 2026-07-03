@@ -10,11 +10,11 @@ Interview me relentlessly about what I actually want — not how to build it. Th
 ## Rules
 
 1. **One question per turn.** Never bundle.
-2. **Every question comes with options and a recommended answer.** Defaulting to "what do you think?" is lazy.
+2. **Every question comes with options and a recommended answer.** When there's ambiguity, give 2-3 concrete choices and mark the one you'd pick. When there's really only one sane answer, state it as your assumption and ask for a yes/no instead of manufacturing false choices.
 3. **Stay off the "how."** Don't ask the user to make implementation decisions (which data structure, which library, how to sequence the work) — that's a different job (use `/plan` or `grill-me` for that, after this). But technical facts can still be constraints: "must integrate with the existing risk-engine process," "must not add new external dependencies," "must hit sub-millisecond latency," "must reuse the existing order-routing module."
 4. **Cover three areas, roughly in order:**
    - **Outcome** — what does done actually look like, concretely, for this specific thing? What's in scope, what's explicitly not?
    - **Success criteria** — how will we know it worked? What would make it a failure even if it technically "runs" or "ships"?
-   - **Constraints** — what must never happen, what's fixed and non-negotiable, what's explicitly out of scope?
+   - **Constraints** — what must never happen, what's fixed and non-negotiable, what's explicitly out of scope? If a constraint is really a large body of domain knowledge or existing workflow (a field-mapping table, a set of business/project rules, tribal knowledge held by one person) — capture that it exists, where it lives, and that correctness depends on it. Don't try to extract every entry here; that's a systematic extraction job for the next stage, not a goal-clarifying question.
 5. **Stop when genuinely resolved.** Don't manufacture extra questions once all three areas are locked.
 6. **Close with a recap** — the finished goal, success criteria, and constraints in plain language, ready to hand to whatever does the actual planning or building.
