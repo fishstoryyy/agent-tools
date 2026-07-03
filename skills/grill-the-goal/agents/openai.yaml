@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grill the Goal"
+  short_description: "Clarify outcomes, success criteria, and constraints"
+  default_prompt: "Use $grill-the-goal to turn my vague goal into a concrete outcome, success criteria, and constraints."

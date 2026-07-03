@@ -9,6 +9,9 @@ Personal open-source toolkit for agent skills and other agentic tools.
 ```text
 agent-tools/
   skills/
+    grill-the-goal/
+      SKILL.md
+      agents/openai.yaml
     grill-me-light/
       SKILL.md
       agents/openai.yaml
@@ -28,6 +31,7 @@ agent-tools/
 
 | Skill | Description |
 | --- | --- |
+| [`grill-the-goal`](skills/grill-the-goal/SKILL.md) | Goal-focused interviewing that locks down outcomes, success criteria, and constraints without entering implementation planning. |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Bounded plan grilling with a five-question default cap, recommendations, alignment brief, and handoff support. |
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
@@ -37,6 +41,7 @@ agent-tools/
 Install a skill from the published GitHub repo:
 
 ```bash
+npx skills@latest add fishstoryyy/agent-tools --skill grill-the-goal
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review-light
