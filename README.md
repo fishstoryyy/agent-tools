@@ -15,6 +15,9 @@ agent-tools/
     context-handoff/
       SKILL.md
       agents/openai.yaml
+    create-session-handoff/
+      SKILL.md
+      agents/openai.yaml
     grill-the-goal/
       SKILL.md
       agents/openai.yaml
@@ -39,6 +42,7 @@ agent-tools/
 | --- | --- |
 | [`build-context-to-do-something`](skills/build-context-to-do-something/SKILL.md) | Minimum-sufficient context prompts for capable fresh agents performing user-specified tasks. |
 | [`context-handoff`](skills/context-handoff/SKILL.md) | Tight, self-contained prompts for handing work to a fresh agent or session. |
+| [`create-session-handoff`](skills/create-session-handoff/SKILL.md) | Durable workspace handoffs for continuing active work in a fresh session. |
 | [`grill-the-goal`](skills/grill-the-goal/SKILL.md) | Goal-focused interviewing that locks down outcomes, success criteria, and constraints without entering implementation planning. |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Bounded plan grilling with a five-question default cap, recommendations, alignment brief, and handoff support. |
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
@@ -51,6 +55,7 @@ Install a skill from the published GitHub repo:
 ```bash
 npx skills@latest add fishstoryyy/agent-tools --skill build-context-to-do-something
 npx skills@latest add fishstoryyy/agent-tools --skill context-handoff
+npx skills@latest add fishstoryyy/agent-tools --skill create-session-handoff
 npx skills@latest add fishstoryyy/agent-tools --skill grill-the-goal
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-light
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
