@@ -74,7 +74,7 @@ Local CLI discovery can be tested with:
 npx skills@latest add . -l
 ```
 
-Published discovery and installation were verified on June 30, 2026. Re-verify them after each release.
+Published discovery and installation were verified on July 3, 2026. Re-verify them after each release.
 
 ## Validate
 
