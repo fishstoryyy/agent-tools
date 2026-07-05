@@ -46,6 +46,23 @@ function parseFrontmatter(content, filePath) {
   return values;
 }
 
+function hasManualOnlyCodexPolicy(content) {
+  const lines = content.split(/\r?\n/);
+  const policyIndex = lines.findIndex((line) => /^policy:\s*(?:#.*)?$/.test(line));
+
+  if (policyIndex === -1) return false;
+
+  for (const line of lines.slice(policyIndex + 1)) {
+    if (!line.trim() || line.trimStart().startsWith("#")) continue;
+    if (!line.startsWith(" ") && !line.startsWith("\t")) break;
+    if (/^ {2}allow_implicit_invocation:\s*false\s*(?:#.*)?$/.test(line)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 async function pathExists(targetPath) {
   try {
     await stat(targetPath);
@@ -101,6 +118,26 @@ async function validateSkill(skillName) {
     errors.push(`${relativeSkillPath}: missing frontmatter description`);
   } else if (frontmatter.description.length > 1024) {
     errors.push(`${relativeSkillPath}: description must be 1024 characters or fewer`);
+  }
+
+  if (frontmatter["disable-model-invocation"] !== "true") {
+    errors.push(
+      `${relativeSkillPath}: disable-model-invocation must be true for manual-only Claude Code invocation`,
+    );
+  }
+
+  const openaiMetadataPath = path.join(skillPath, "agents", "openai.yaml");
+  if (!(await pathExists(openaiMetadataPath))) {
+    errors.push(
+      `${relativeSkillPath}: missing agents/openai.yaml required for manual-only Codex invocation`,
+    );
+  } else {
+    const openaiMetadata = await readFile(openaiMetadataPath, "utf8");
+    if (!hasManualOnlyCodexPolicy(openaiMetadata)) {
+      errors.push(
+        `${relativeSkillPath}: agents/openai.yaml must set policy.allow_implicit_invocation to false`,
+      );
+    }
   }
 
   const entries = await readdir(skillPath, { withFileTypes: true });

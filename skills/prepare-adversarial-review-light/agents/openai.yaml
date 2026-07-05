@@ -2,3 +2,6 @@ interface:
   display_name: "Prepare Adversarial Review Light"
   short_description: "Lightweight closed-loop review handoffs"
   default_prompt: "Use $prepare-adversarial-review-light to prepare this work for an independent adversarial review."
+
+policy:
+  allow_implicit_invocation: false

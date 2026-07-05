@@ -2,3 +2,6 @@ interface:
   display_name: "Prepare Adversarial Review"
   short_description: "Prepare proportional review or audit handoffs"
   default_prompt: "Use $prepare-adversarial-review to prepare this work or completed review for an independent review or audit session."
+
+policy:
+  allow_implicit_invocation: false
