@@ -5,6 +5,9 @@
   "description": "Personal open-source toolkit for agent skills and agentic tools.",
   "type": "module",
   "scripts": {
+    "check:skill-links": "node scripts/link-local-skills.mjs",
+    "link:skills": "node scripts/link-local-skills.mjs --apply",
+    "test:skill-links": "node --test scripts/link-local-skills.test.mjs",
     "validate:skills": "node scripts/validate-skills.mjs"
   },
   "license": "MIT"

@@ -76,6 +76,28 @@ npx skills@latest add . -l
 
 Published discovery and installation were verified on July 3, 2026. Re-verify them after each release.
 
+### Local Development
+
+To use this checkout as the live source for both Codex and Claude Code:
+
+```bash
+npm run link:skills
+```
+
+This safely backs up existing installations, links every repo skill into `~/.agents/skills` for Codex and `~/.claude/skills` for Claude Code, and detaches these development links from the global Skills CLI update lock. Dedicated entries with the same name under `~/.codex/skills` are reported but left untouched because their provenance is unknown. Edits under `skills/` then become available without reinstalling. Re-run the command after adding or removing a skill.
+
+Check the links without changing anything:
+
+```bash
+npm run check:skill-links
+```
+
+Test the linking workflow in isolated temporary home directories:
+
+```bash
+npm run test:skill-links
+```
+
 ## Validate
 
 Run:
