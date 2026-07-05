@@ -1,6 +1,7 @@
 ---
 name: create-session-handoff
 description: Create or refresh a durable Markdown handoff file that lets a fresh agent or model continue active work in the same project without access to the current conversation. Use when the user is ending a session, switching models through a new session, pausing unfinished work, or explicitly asks for a handoff file, continuation file, session checkpoint, or restart artifact. Write the artifact into the workspace; do not use this skill for prompt-only handoffs or independent review briefs.
+disable-model-invocation: true
 ---
 
 # Create Session Handoff

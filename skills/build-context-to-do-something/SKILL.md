@@ -1,6 +1,7 @@
 ---
 name: build-context-to-do-something
 description: Generate an accurate, ready-to-send prompt that gives a fresh agent the non-obvious context it needs to perform a user-specified task effectively. Use mid-session when the current agent holds relevant conversation or workspace context and the user asks to brief, prepare, hand off, or build context for another agent to do something, such as review a diff, investigate a bug, continue implementation, or evaluate a plan.
+disable-model-invocation: true
 ---
 
 # Build Context to Do Something

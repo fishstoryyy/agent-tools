@@ -1,6 +1,7 @@
 ---
 name: grill-the-goal
 description: Interview the user to lock down a vague goal's outcome, success criteria, and constraints before any work starts. Use when the user has a fuzzy goal, an unscoped request, or asks to "grill the goal," "scope this," or "figure out what I actually want." Deliberately does not touch implementation steps, architecture, or sequencing — pair with plan mode or grill-me for that.
+disable-model-invocation: true
 ---
 
 # Grill the Goal

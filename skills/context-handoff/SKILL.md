@@ -1,6 +1,7 @@
 ---
 name: context-handoff
 description: Use this skill whenever the user wants to hand a task off to a fresh agent, subagent, or new chat session that won't share this conversation's history — e.g. "write a handoff prompt so a new session can review this diff", "give me something I can paste into a new chat to keep working on this", "brief a fresh agent on this so they can pick it up", "condense this into a prompt for someone else to run with", "I'm going to open a new session for X, set it up with the right context". The output is a single, tight, self-contained prompt — not a recap of the conversation — built around whatever task the user names.
+disable-model-invocation: true
 ---
 
 # Context Handoff

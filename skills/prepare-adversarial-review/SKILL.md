@@ -1,6 +1,7 @@
 ---
 name: prepare-adversarial-review
 description: Create a proportional, high-fidelity Markdown dossier and concise ready-to-send launch prompt for either a fresh adversarial reviewer or a third-line audit agent. Use when the user wants a plan, implementation, analysis, strategy, design, research result, or other agent work prepared for independent review; asks for a review handoff or context pack; or wants a completed adversarial review prepared for an independent audit session.
+disable-model-invocation: true
 ---
 
 # Prepare Adversarial Review

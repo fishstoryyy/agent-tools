@@ -4,7 +4,7 @@ import process from "node:process";
 
 const repoRoot = process.cwd();
 const skillsDir = path.join(repoRoot, "skills");
-const allowedFrontmatterKeys = new Set(["name", "description"]);
+const allowedFrontmatterKeys = new Set(["name", "description", "disable-model-invocation"]);
 const allowedResourceDirs = new Set(["scripts", "references", "assets", "agents"]);
 const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

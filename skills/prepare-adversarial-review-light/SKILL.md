@@ -1,6 +1,7 @@
 ---
 name: prepare-adversarial-review-light
 description: Create a context-rich markdown brief and concise ready-to-send prompt for an independent adversarial review of work produced in the current session, including plans, analyses, code, strategy research, infrastructure, or prior reviews. Use when handing work to a fresh reviewer or third-line audit agent who needs the conversation's decisions, evidence, resources, and unresolved risks without replaying the session.
+disable-model-invocation: true
 ---
 
 # Prepare Adversarial Review Light
