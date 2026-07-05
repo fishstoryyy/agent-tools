@@ -1,6 +1,7 @@
 ---
 name: grill-me-light
 description: Bounded interview for stress-testing a plan, design, architecture, implementation approach, product idea, or vague prompt before building. Use when the user asks to be grilled, wants Matt Pocock-style alignment with fewer questions, asks for a capped or lightweight grilling session, or wants assumptions, decisions, and risks clarified without slowing development.
+disable-model-invocation: true
 ---
 
 # Grill Me Light
