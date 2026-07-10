@@ -1,21 +1,29 @@
 ---
 name: grill-the-goal
-description: Interview the user to lock down a vague goal's outcome, success criteria, and constraints before any work starts. Use when the user has a fuzzy goal, an unscoped request, or asks to "grill the goal," "scope this," or "figure out what I actually want." Deliberately does not touch implementation steps, architecture, or sequencing — pair with plan mode or grill-me for that.
+description: Interview the user to turn a vague or unscoped goal into a decision-ready brief by clarifying the relevant context, actors, sources, outcome, success evidence, tradeoffs, constraints, and unknowns before implementation planning. Use when the user has a fuzzy goal, an unscoped request, or asks to "grill the goal," "scope this," or "figure out what I actually want." Deliberately avoids implementation steps, architecture, and sequencing — pair with plan mode or grill-me afterward.
 disable-model-invocation: true
 ---
 
 # Grill the Goal
 
-Interview me relentlessly about what I actually want — not how to build it. This applies whether the goal is a whole new product or a single feature in an existing system. Walk down each branch until three things are locked: the outcome, how we'll know it's done, and the hard constraints. Ask one question at a time, and always propose your own best-guess answer so I'm confirming or correcting, not staring at a blank page. If something can be inferred from context already in this conversation, or from files/codebase you can check, don't ask — state your inference and let me correct it.
+Interview the user relentlessly about what they actually want — not how to build it. Apply this whether the goal is a whole new product or a single feature in an existing system. Walk down each relevant branch until the goal is decision-ready. Infer what you can from the conversation and available materials, then let the user confirm or correct your working understanding.
 
 ## Rules
 
-1. **One question per turn.** Never bundle.
-2. **Every question comes with options and a recommended answer.** When there's ambiguity, give 2-3 concrete choices and mark the one you'd pick. When there's really only one sane answer, state it as your assumption and ask for a yes/no instead of manufacturing false choices.
-3. **Stay off the "how."** Don't ask the user to make implementation decisions (which data structure, which library, how to sequence the work) — that's a different job (use `/plan` or `grill-me` for that, after this). But technical facts can still be constraints: "must integrate with the existing risk-engine process," "must not add new external dependencies," "must hit sub-millisecond latency," "must reuse the existing order-routing module."
-4. **Cover three areas, roughly in order:**
-   - **Outcome** — what does done actually look like, concretely, for this specific thing? What's in scope, what's explicitly not?
-   - **Success criteria** — how will we know it worked? What would make it a failure even if it technically "runs" or "ships"?
-   - **Constraints** — what must never happen, what's fixed and non-negotiable, what's explicitly out of scope? If a constraint is really a large body of domain knowledge or existing workflow (a field-mapping table, a set of business/project rules, tribal knowledge held by one person) — capture that it exists, where it lives, and that correctness depends on it. Don't try to extract every entry here; that's a systematic extraction job for the next stage, not a goal-clarifying question.
-5. **Stop when genuinely resolved.** Don't manufacture extra questions once all three areas are locked.
-6. **Close with a recap** — the finished goal, success criteria, and constraints in plain language, ready to hand to whatever does the actual planning or building.
+1. **Resolve one decision per turn.** Ask one focused question at a time. Never bundle unrelated decisions.
+2. **Offer a working hypothesis.** When there is ambiguity, give 2-3 concrete choices, recommend one, and briefly explain the basis for the recommendation. Make it easy to reject the framing entirely. When there is only one sane answer, state it as an assumption and ask for confirmation instead of manufacturing false choices.
+3. **Inspect available evidence before asking.** Check the conversation, codebase, and referenced materials for answers the user should not have to repeat. State the inference and its source, and ask for correction only when meaningful uncertainty remains.
+4. **Stay off the "how."** Do not ask the user to choose implementation details such as architecture, libraries, data structures, or sequencing; use `/plan` or `grill-me` for that afterward. Goal-level questions about causality, adoption, measurement, ownership, source authority, and technical constraints are still in scope.
+5. **Cover the relevant lenses, roughly in order:**
+   - **Context and intent** — What happens today? What problem or opportunity motivates the goal? Why now, and what happens if nothing changes?
+   - **Actors** — Who benefits, uses, approves, operates, maintains, or may be adversely affected? Whose definition of success governs, and whose behavior must change?
+   - **Sources and materials** — Which codebases, documents, tickets, examples, datasets, or existing workflows are relevant? Record where each lives and whether it is a source of truth, background, constraint, example, or validation evidence. Note relevant versions, branches, or dates; establish precedence when sources conflict; and flag anything unavailable, stale, or incomplete. Inspect enough to clarify the goal, but defer exhaustive rule extraction to the next stage.
+   - **Outcome and scope** — What observable state or behavior should change? What is included, explicitly excluded, and the minimum acceptable result?
+   - **Success evidence** — What baseline, target, measurement method, time horizon, and guardrails establish success? What would make this a failure even if it technically runs or ships?
+   - **Priorities and tradeoffs** — When desired qualities conflict, what wins? Which requirements are non-negotiable and which are preferences?
+   - **Constraints and dependencies** — What must never happen? What limits, deadlines, obligations, integrations, people, or external systems are fixed or required?
+   - **Assumptions and unknowns** — What must be true for the goal to make sense? Distinguish established facts, inferences, and decisions. Record what remains uncertain and what could invalidate or materially reshape the goal.
+6. **Use relevance, not checklist completion.** Treat the lenses as prompts for judgment. Explore only lenses that could materially change the goal, its evaluation, or its boundaries. A lens may be resolved, explicitly not applicable, or left as a named unknown. Do not invent content merely to fill every section.
+7. **Check for consistency before stopping.** Confirm that the outcome serves the stated actors and intent, success evidence is observable, priorities resolve likely tradeoffs, constraints do not contradict success, source authority and gaps are clear, and assumptions are not presented as facts.
+8. **Stop when the goal is decision-ready.** Stop when material ambiguities are resolved, irrelevant lenses have been skipped, and remaining unknowns are explicitly recorded with their likely impact. Do not require every lens to contain content or manufacture extra questions.
+9. **Close with a goal brief.** Recap the relevant context and intent, actors, outcome and scope, success evidence, priorities, constraints and dependencies, sources and materials, and assumptions or open questions. Omit inapplicable sections. For each source, include its location, role, authority, relevant version or date, and known gaps. Make the brief ready to hand to whatever does the actual planning or building.
