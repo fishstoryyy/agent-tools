@@ -32,7 +32,7 @@ Questions one through six are the normal budget. Continue with questions seven t
 - A wrong assumption would be expensive to unwind.
 - You state why extending the interview is worthwhile before asking question seven.
 
-Make the checkpoint and question seven a single turn so the checkpoint does not add another interaction. Put the checkpoint in the native question tool's prompt or description when its schema supports that; otherwise state it immediately before calling the tool. Use this content:
+Make the checkpoint and question seven a single turn so the checkpoint does not add another interaction. Put the checkpoint in the question text the tool renders; if the tool's schema cannot carry it, state the checkpoint immediately before calling the tool. Use this content:
 
 ```text
 I have reached the default six-question budget. I recommend continuing because <reason>. You can answer the next question or tell me to proceed with the current assumptions.
@@ -106,14 +106,11 @@ When the interview is done, summarize the following, omitting empty sections:
 
 Treat this brief as the working contract for subsequent planning or execution. Revise it when new evidence or user direction materially changes it.
 
-After the brief, present these options through the native question tool when available, then wait for the user's choice:
+After the brief, offer these choices and wait for the user's selection. Render them as the native question tool's options when one is available, and as a numbered list otherwise.
 
-```text
-Post-brief options:
 1. Continue into execution within the agreed scope.
 2. Prepare a markdown handoff for another agent or session.
 3. Stop here with the alignment brief.
-```
 
 Recommend one option based on the situation:
 
