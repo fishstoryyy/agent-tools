@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Reconstruct the active, human-readable branch of a Claude Code session.
+"""Reconstruct the active, human-readable branch of an agent session.
 
-Tool chatter, meta records, abandoned rewind branches, and thinking (by default)
-are omitted. AskUserQuestion prompts and their answers are preserved.
+Claude Code and oh-my-pi (OMP) JSONL sessions are detected automatically.
+Ordinary tool chatter, meta records, abandoned rewind branches, and thinking
+(by default) are omitted. Interactive questions and their answers are kept.
 
 Usage:
-    parse_session.py SESSION.jsonl [--cursor UUID | --since N]
+    parse_session.py SESSION.jsonl [--cursor ID | --since N]
+                                   [--format auto|claude|omp]
                                    [--include-thinking]
                                    [--include-sidechains]
 
@@ -28,11 +30,12 @@ _DROP_WRAPPERS = re.compile(
 )
 _UNWRAP = re.compile(r"</?(command-args|command-contents)>")
 _STRAY_TAGS = re.compile(r"</?(command-[a-z-]+|local-command-[a-z-]+)>")
-_QUESTION_TOOL_NAMES = {"AskUserQuestion"}
+_CLAUDE_QUESTION_TOOL_NAMES = {"AskUserQuestion"}
+_OMP_QUESTION_TOOL_NAMES = {"ask"}
 
 
 def clean_user_text(text):
-    """Return conversational user text, or an empty string for CLI noise."""
+    """Return conversational Claude user text, or empty text for CLI noise."""
     if any(marker in text for marker in _META_MARKERS):
         return ""
     text = _DROP_WRAPPERS.sub("", text)
@@ -41,10 +44,8 @@ def clean_user_text(text):
     return text.strip()
 
 
-def render_question_tool(block):
-    """Render a Claude Code AskUserQuestion tool call as readable dialogue."""
-    tool_input = block.get("input") or {}
-    questions = tool_input.get("questions")
+def render_questions(questions, *, omp=False):
+    """Render Claude or OMP interactive-question arguments."""
     if not isinstance(questions, list):
         return ""
 
@@ -60,6 +61,7 @@ def render_question_tool(block):
         rendered.append(question)
 
         options = item.get("options")
+        recommended = item.get("recommended") if omp else None
         if isinstance(options, list):
             for number, option in enumerate(options, 1):
                 if not isinstance(option, dict):
@@ -68,17 +70,41 @@ def render_question_tool(block):
                 description = str(option.get("description") or "").strip()
                 if not label:
                     continue
+                if recommended == number - 1 and not label.endswith("(Recommended)"):
+                    label += " (Recommended)"
                 suffix = f" — {description}" if description else ""
                 rendered.append(f"{number}. {label}{suffix}")
 
-        if item.get("multiSelect"):
+        if item.get("multiSelect") or item.get("multi"):
             rendered.append("(Multiple selections allowed.)")
+        rendered.append("")
 
     return "\n".join(rendered).strip()
 
 
-def render_question_answers(obj, question_tool_ids):
-    """Render the user's answer to AskUserQuestion, if this record contains it."""
+def render_claude_question_tool(block):
+    """Render a Claude Code AskUserQuestion tool call."""
+    tool_input = block.get("input") or {}
+    return render_questions(tool_input.get("questions"))
+
+
+def render_omp_question_tool(block):
+    """Render an OMP ask tool call."""
+    arguments = block.get("arguments")
+    if not isinstance(arguments, dict):
+        partial = block.get("partialArgs")
+        if isinstance(partial, str):
+            try:
+                arguments = json.loads(partial)
+            except json.JSONDecodeError:
+                arguments = None
+    if not isinstance(arguments, dict):
+        return ""
+    return render_questions(arguments.get("questions"), omp=True)
+
+
+def render_claude_question_answers(obj, question_tool_ids):
+    """Render an answer to AskUserQuestion when this record contains one."""
     result = obj.get("toolUseResult")
     if isinstance(result, dict) and isinstance(result.get("answers"), dict):
         lines = []
@@ -107,8 +133,13 @@ def render_question_answers(obj, question_tool_ids):
     return ""
 
 
-def blocks_text(content, include_thinking, include_questions=False):
-    """Join human-readable blocks from a list-form message."""
+def render_content(content, include_thinking=False, question_format=None):
+    """Join human-readable text, images, thinking, and question blocks."""
+    if isinstance(content, str):
+        return content.strip()
+    if not isinstance(content, list):
+        return ""
+
     parts = []
     for block in content:
         if not isinstance(block, dict):
@@ -116,23 +147,35 @@ def blocks_text(content, include_thinking, include_questions=False):
         block_type = block.get("type")
         if block_type == "text":
             text = block.get("text", "")
-            if isinstance(text, str):
+            if isinstance(text, str) and text.strip():
                 parts.append(text)
+        elif block_type == "image":
+            parts.append("[Image attached]")
         elif block_type == "thinking" and include_thinking:
             thinking = block.get("thinking", "") or block.get("text", "")
             if isinstance(thinking, str) and thinking.strip():
                 parts.append("[thinking] " + thinking)
         elif (
             block_type == "tool_use"
-            and include_questions
-            and block.get("name") in _QUESTION_TOOL_NAMES
+            and question_format == "claude"
+            and block.get("name") in _CLAUDE_QUESTION_TOOL_NAMES
         ):
-            parts.append(render_question_tool(block))
+            question = render_claude_question_tool(block)
+            if question:
+                parts.append(question)
+        elif (
+            block_type == "toolCall"
+            and question_format == "omp"
+            and block.get("name") in _OMP_QUESTION_TOOL_NAMES
+        ):
+            question = render_omp_question_tool(block)
+            if question:
+                parts.append(question)
     return "\n".join(part for part in parts if part.strip()).strip()
 
 
-def extract_turn(obj, include_thinking, question_tool_ids):
-    """Return (role label, text) for a conversational turn, or None."""
+def extract_claude_turn(obj, include_thinking, question_tool_ids):
+    """Return (role label, text) for a Claude turn, or None."""
     if obj.get("type") not in ("user", "assistant") or obj.get("isMeta"):
         return None
     message = obj.get("message") or {}
@@ -143,23 +186,18 @@ def extract_turn(obj, include_thinking, question_tool_ids):
         if isinstance(content, str):
             text = clean_user_text(content)
         elif isinstance(content, list):
-            parts = [blocks_text(content, include_thinking=False)]
-            parts.append(render_question_answers(obj, question_tool_ids))
+            parts = [render_content(content)]
+            parts.append(render_claude_question_answers(obj, question_tool_ids))
             text = "\n".join(part for part in parts if part).strip()
         else:
             text = ""
         label = "You"
     elif role == "assistant":
-        if isinstance(content, list):
-            text = blocks_text(
-                content,
-                include_thinking,
-                include_questions=True,
-            )
-        elif isinstance(content, str):
-            text = content.strip()
-        else:
-            text = ""
+        text = render_content(
+            content,
+            include_thinking=include_thinking,
+            question_format="claude",
+        )
         label = "Agent"
     else:
         return None
@@ -171,8 +209,131 @@ def extract_turn(obj, include_thinking, question_tool_ids):
     return label, text
 
 
-def active_main_ids(objects):
-    """Return UUIDs on the current main-thread branch."""
+def render_omp_ask_answers(message):
+    """Render a persisted OMP ask result, preferring its canonical text."""
+    text = render_content(message.get("content"))
+    if text:
+        return text
+
+    details = message.get("details") or {}
+    results = details.get("results")
+    if not isinstance(results, list):
+        results = [details] if details else []
+
+    lines = []
+    for result in results:
+        if not isinstance(result, dict):
+            continue
+        question = str(result.get("question") or result.get("id") or "Question")
+        custom = result.get("customInput")
+        selected = result.get("selectedOptions")
+        if custom is not None:
+            answer = str(custom)
+        elif isinstance(selected, list) and selected:
+            answer = ", ".join(str(value) for value in selected)
+        else:
+            answer = "(cancelled)"
+        if result.get("timedOut"):
+            answer += " (auto-selected after timeout)"
+        note = result.get("note")
+        if note:
+            answer += f" (note: {note})"
+        lines.append(f"{question} → {answer}")
+    return "\n".join(lines).strip()
+
+
+def render_file_mentions(message):
+    """Render user-mentioned file identities without replaying file contents."""
+    files = message.get("files")
+    if not isinstance(files, list):
+        return ""
+    lines = []
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        path = str(item.get("path") or "").strip()
+        if not path:
+            continue
+        suffix = " [image]" if item.get("image") else ""
+        lines.append(f"- {path}{suffix}")
+    return "Files mentioned:\n" + "\n".join(lines) if lines else ""
+
+
+def extract_omp_turn(obj, include_thinking, question_tool_ids):
+    """Return (role label, text) for an OMP turn or context record."""
+    entry_type = obj.get("type")
+
+    if entry_type == "custom_message":
+        if not obj.get("display"):
+            return None
+        text = render_content(obj.get("content"))
+        if not text:
+            return None
+        custom_type = str(obj.get("customType") or "custom message")
+        attribution = obj.get("attribution")
+        suffix = " (user-invoked)" if attribution == "user" else ""
+        return f"Context — {custom_type}{suffix}", text
+
+    if entry_type == "branch_summary":
+        summary = str(obj.get("summary") or "").strip()
+        return ("Context — branch summary", summary) if summary else None
+
+    if entry_type == "compaction":
+        summary = str(obj.get("summary") or "").strip()
+        if not summary:
+            return None
+        tokens = obj.get("tokensBefore")
+        prefix = f"({tokens} tokens before compaction)\n" if tokens is not None else ""
+        return "Context — compaction", prefix + summary
+
+    if entry_type != "message":
+        return None
+
+    message = obj.get("message") or {}
+    role = message.get("role")
+    content = message.get("content")
+    if role == "user":
+        text = render_content(content)
+        label = "You"
+    elif role == "assistant":
+        text = render_content(
+            content,
+            include_thinking=include_thinking,
+            question_format="omp",
+        )
+        label = "Agent"
+    elif role == "toolResult":
+        tool_call_id = message.get("toolCallId")
+        if (
+            message.get("toolName") not in _OMP_QUESTION_TOOL_NAMES
+            and tool_call_id not in question_tool_ids
+        ):
+            return None
+        text = render_omp_ask_answers(message)
+        label = "You [answer]"
+    elif role in ("custom", "hookMessage"):
+        if not message.get("display"):
+            return None
+        text = render_content(content)
+        custom_type = str(message.get("customType") or role)
+        label = f"Context — {custom_type}"
+    elif role == "branchSummary":
+        text = str(message.get("summary") or "").strip()
+        label = "Context — branch summary"
+    elif role == "compactionSummary":
+        text = str(message.get("summary") or "").strip()
+        label = "Context — compaction"
+    elif role == "fileMention":
+        text = render_file_mentions(message)
+        label = "You [files]"
+    else:
+        return None
+
+    return (label, text) if text else None
+
+
+def active_claude_ids(objects):
+    """Return UUIDs on the current Claude main-thread branch."""
     nodes = {}
     latest_node = None
     latest_node_position = -1
@@ -195,12 +356,9 @@ def active_main_ids(objects):
         return set()
 
     leaf = latest_node
-    if (
-        latest_marker_position > latest_node_position
-        and latest_marker in nodes
-    ):
-        # Orca/Claude may append this cursor after a rewind without adding a new
-        # dialogue record. In that case it is the only persisted active-leaf signal.
+    if latest_marker_position > latest_node_position and latest_marker in nodes:
+        # Claude integrations may append this cursor after a rewind without a
+        # new dialogue record. It is then the only persisted active-leaf signal.
         leaf = latest_marker
 
     active = set()
@@ -213,8 +371,8 @@ def active_main_ids(objects):
     return active
 
 
-def belongs_to_active_sidechain(obj, all_nodes, active_ids):
-    """Whether a sidechain node ultimately attaches to the active main branch."""
+def belongs_to_active_claude_sidechain(obj, all_nodes, active_ids):
+    """Whether a Claude sidechain ultimately attaches to the active branch."""
     node_uuid = obj.get("uuid")
     seen = set()
     while node_uuid and node_uuid not in seen:
@@ -228,20 +386,16 @@ def belongs_to_active_sidechain(obj, all_nodes, active_ids):
     return False
 
 
-def select_active_objects(objects, include_sidechains):
-    """Filter raw records to the active branch, optionally retaining sidechains."""
-    active_ids = active_main_ids(objects)
+def select_active_claude_objects(objects, include_sidechains):
+    """Select Claude active-branch records, optionally retaining sidechains."""
+    active_ids = active_claude_ids(objects)
     if not active_ids:
         return [
             obj for obj in objects
             if include_sidechains or not obj.get("isSidechain")
         ]
 
-    all_nodes = {
-        obj["uuid"]: obj
-        for obj in objects
-        if obj.get("uuid")
-    }
+    all_nodes = {obj["uuid"]: obj for obj in objects if obj.get("uuid")}
     selected = []
     for obj in objects:
         node_uuid = obj.get("uuid")
@@ -250,10 +404,38 @@ def select_active_objects(objects, include_sidechains):
         elif (
             include_sidechains
             and obj.get("isSidechain")
-            and belongs_to_active_sidechain(obj, all_nodes, active_ids)
+            and belongs_to_active_claude_sidechain(obj, all_nodes, active_ids)
         ):
             selected.append(obj)
     return selected
+
+
+def select_active_omp_objects(objects):
+    """Reproduce OMP's getBranch(): walk parentId from the last entry."""
+    entries = [
+        obj for obj in objects
+        if obj.get("type") not in ("session", "title")
+    ]
+    nodes = {obj["id"]: obj for obj in entries if obj.get("id")}
+    if not nodes:
+        # OMP v1 sessions were linear and had no id/parentId fields.
+        return entries
+
+    leaf = next((obj for obj in reversed(entries) if obj.get("id")), None)
+    if leaf is None:
+        return entries
+
+    path = []
+    seen = set()
+    current = leaf
+    while current and current.get("id") not in seen:
+        node_id = current.get("id")
+        seen.add(node_id)
+        path.append(current)
+        parent_id = current.get("parentId")
+        current = nodes.get(parent_id) if parent_id else None
+    path.reverse()
+    return path
 
 
 def load_objects(session_path):
@@ -266,15 +448,66 @@ def load_objects(session_path):
         return None
 
     objects = []
-    for line in raw_lines:
+    for line_number, line in enumerate(raw_lines, 1):
         line = line.strip()
         if not line:
             continue
         try:
-            objects.append(json.loads(line))
+            obj = json.loads(line)
         except json.JSONDecodeError:
             continue
+        if not isinstance(obj, dict):
+            continue
+        obj["_parser_line"] = line_number
+        objects.append(obj)
     return objects
+
+
+def detect_format(objects):
+    """Detect OMP's message-entry schema; otherwise use Claude's schema."""
+    for obj in objects:
+        message = obj.get("message")
+        if (
+            obj.get("type") == "message"
+            and isinstance(message, dict)
+            and message.get("role")
+        ):
+            return "omp"
+    return "claude"
+
+
+def record_id(obj, session_format):
+    """Return a stable cursor for a persisted turn, including legacy files."""
+    key = "id" if session_format == "omp" else "uuid"
+    value = obj.get(key)
+    if value:
+        return str(value)
+    return f"line:{obj.get('_parser_line', '')}"
+
+
+def collect_question_tool_ids(objects, session_format):
+    """Collect interactive tool-call IDs so only their results become turns."""
+    ids = set()
+    for obj in objects:
+        content = (obj.get("message") or {}).get("content")
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            if session_format == "claude":
+                is_question = (
+                    block.get("type") == "tool_use"
+                    and block.get("name") in _CLAUDE_QUESTION_TOOL_NAMES
+                )
+            else:
+                is_question = (
+                    block.get("type") == "toolCall"
+                    and block.get("name") in _OMP_QUESTION_TOOL_NAMES
+                )
+            if is_question and block.get("id"):
+                ids.add(block["id"])
+    return ids
 
 
 def main():
@@ -294,6 +527,12 @@ def main():
         help="Legacy turn-count refresh (not fully rewind-safe)",
     )
     parser.add_argument(
+        "--format",
+        choices=("auto", "claude", "omp"),
+        default="auto",
+        help="Session format override (default: auto-detect)",
+    )
+    parser.add_argument(
         "--include-thinking",
         action="store_true",
         help="Include persisted assistant thinking blocks",
@@ -301,7 +540,7 @@ def main():
     parser.add_argument(
         "--include-sidechains",
         action="store_true",
-        help="Include subagent (Task) turns attached to the active branch",
+        help="Include Claude subagent turns attached to the active branch",
     )
     args = parser.parse_args()
     if args.since is not None and args.since < 0:
@@ -310,25 +549,22 @@ def main():
     objects = load_objects(args.session)
     if objects is None:
         return 2
-    active_objects = select_active_objects(objects, args.include_sidechains)
+    session_format = detect_format(objects) if args.format == "auto" else args.format
 
-    question_tool_ids = set()
-    for obj in active_objects:
-        content = (obj.get("message") or {}).get("content")
-        if not isinstance(content, list):
-            continue
-        for block in content:
-            if (
-                isinstance(block, dict)
-                and block.get("type") == "tool_use"
-                and block.get("name") in _QUESTION_TOOL_NAMES
-                and block.get("id")
-            ):
-                question_tool_ids.add(block["id"])
+    if session_format == "omp":
+        active_objects = select_active_omp_objects(objects)
+        extractor = extract_omp_turn
+    else:
+        active_objects = select_active_claude_objects(
+            objects,
+            args.include_sidechains,
+        )
+        extractor = extract_claude_turn
 
+    question_tool_ids = collect_question_tool_ids(active_objects, session_format)
     turns = []
     for obj in active_objects:
-        turn = extract_turn(obj, args.include_thinking, question_tool_ids)
+        turn = extractor(obj, args.include_thinking, question_tool_ids)
         if turn is None:
             continue
         label, turn_text = turn
@@ -338,7 +574,7 @@ def main():
                 label,
                 obj.get("timestamp", ""),
                 turn_text,
-                obj.get("uuid", ""),
+                record_id(obj, session_format),
             )
         )
 
@@ -368,7 +604,7 @@ def main():
     else:
         for index, label, timestamp, turn_text, _ in shown:
             if timestamp:
-                timestamp = timestamp.replace("T", " ").replace("Z", "")[:19]
+                timestamp = str(timestamp).replace("T", " ").replace("Z", "")[:19]
             header = f"[{index}] {label}" + (
                 f"  {timestamp}" if timestamp else ""
             )

@@ -1,7 +1,7 @@
 interface:
   display_name: "Grill Me Companion"
-  short_description: "Coach a separate live Claude Code session"
-  default_prompt: "Use $grill-me-companion with this Claude Code session JSONL path, follow only its active branch, and help me understand and steer the conversation."
+  short_description: "Coach a separate live Claude or OMP session"
+  default_prompt: "Use $grill-me-companion with this Claude Code or OMP session JSONL path, follow only its active branch, and help me understand and steer the conversation."
 
 policy:
   allow_implicit_invocation: false

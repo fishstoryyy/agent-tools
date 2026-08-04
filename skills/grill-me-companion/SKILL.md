@@ -1,6 +1,6 @@
 ---
 name: grill-me-companion
-description: Act as a read-only conversation coach for a separate, live Claude Code session. Use when the user provides another session's .jsonl path and asks for a companion, second brain, overseer, explanation of the other agent's reply, help deciding what to say next, or uses phrases such as "grill me companion," "watch my other session," or "help me talk to the other agent." Reconstruct only the active conversation branch, detect rewinds, preserve interactive questions, and help the user understand and steer the work without sending anything to the other session.
+description: Act as a read-only conversation coach for a separate, live Claude Code or oh-my-pi (OMP) session. Use when the user provides another session's .jsonl path and asks for a companion, second brain, overseer, explanation of the other agent's reply, help deciding what to say next, or uses phrases such as "grill me companion," "watch my other session," or "help me talk to the other agent." Reconstruct only the active conversation branch, detect rewinds, preserve interactive questions, and help the user understand and steer the work without sending anything to the other session.
 disable-model-invocation: true
 ---
 
@@ -23,12 +23,15 @@ the user decide how to steer it. Never speak to or alter the other session.
 Use the bundled parser:
 
 ```text
-python3 <skill-dir>/scripts/parse_session.py SESSION.jsonl [--cursor UUID]
+python3 <skill-dir>/scripts/parse_session.py SESSION.jsonl [--cursor ID]
 ```
 
-It reconstructs the active parent/UUID branch and omits abandoned rewind
-branches, tool chatter, meta records, and thinking. It preserves
-`AskUserQuestion` prompts and the user's recorded answers.
+It auto-detects Claude Code and OMP sessions, reconstructs the active parent/ID
+branch, and omits abandoned rewind branches, ordinary tool chatter, meta
+records, and thinking. It preserves Claude `AskUserQuestion` and OMP `ask`
+prompts and recorded answers. For OMP it also preserves displayed custom
+messages, branch summaries, and compaction summaries because they affect the
+agent's visible context.
 
 Useful options:
 
@@ -36,8 +39,11 @@ Useful options:
   This is the required refresh mechanism because it detects rewinds.
 - `--include-thinking`: include persisted reasoning. Most sessions do not store
   useful thinking, so never promise hidden reasoning.
-- `--include-sidechains`: include subagent turns attached to the active branch,
-  only when the user asks about them.
+- `--include-sidechains`: include Claude subagent turns attached to the active
+  branch, only when the user asks about them. OMP subagents use separate session
+  files.
+- `--format claude|omp`: override auto-detection only if a malformed or future
+  session format is detected incorrectly.
 - `--since N`: legacy compatibility only; turn counts cannot reliably detect a
   replaced branch, so do not use it for normal refreshes.
 
@@ -53,10 +59,17 @@ Remember `CURSOR` after every read. `TURNS_TOTAL` is informational.
 
 ## Find the session when no path is provided
 
-Derive the Claude project slug by replacing `/` in the absolute working
-directory with `-`, then list the 3–5 newest `.jsonl` files in the matching
-`~/.claude/projects/<slug>/` directory. Parse a short preview of each and ask the
-user which session is correct. Never silently guess.
+Check both supported stores:
+
+- Claude Code: replace `/` in the absolute working directory with `-` and look
+  under `~/.claude/projects/<slug>/`.
+- OMP: make the working directory home-relative, replace `/`, `\`, and `:` with
+  `-`, prefix it with `-`, and look under `~/.omp/agent/sessions/<slug>/`. For a
+  working directory outside the home directory, use OMP's legacy absolute form
+  `--<absolute-path-with-separators-replaced>--`.
+
+List the 3–5 newest `.jsonl` files across matching stores. Parse a short preview
+of each and ask the user which session is correct. Never silently guess.
 
 ## First read
 
@@ -86,11 +99,12 @@ python3 <skill-dir>/scripts/parse_session.py SESSION.jsonl --cursor <last-cursor
 
 ### Pending interactive prompts
 
-The parser can render `AskUserQuestion` once the tool call is persisted. Claude
-may hold a currently open question only in terminal state. If the user says the
-terminal shows more, use a screenshot or text they provide as an authoritative
-supplement for the current turn. Explain the persistence lag briefly; do not
-attempt to inspect or control the other terminal.
+The parser can render Claude `AskUserQuestion` and OMP `ask` once the tool call
+is persisted. Either agent may hold a currently open question only in terminal
+state. If the user says the terminal shows more, use a screenshot or text they
+provide as an authoritative supplement for the current turn. Explain the
+persistence lag briefly; do not attempt to inspect or control the other
+terminal.
 
 ## Orientation after a read
 
