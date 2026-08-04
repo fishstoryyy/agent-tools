@@ -1,6 +1,6 @@
 ---
 name: orca-two-agent-loop
-description: Run an explicitly requested Orca-native manager-engineer workflow through goal interview, planning, adversarial plan review, implementation, adversarial code review, and delivery. The invoking agent becomes manager and supervises one persistent engineer session through fresh Orca Tasks and Dispatches. Use only when the user explicitly says "orca two-agent loop" or "manager-engineer loop," or deliberately asks two agents to plan, implement, and review a goal end to end with Orca.
+description: Run an explicitly requested Orca-native manager-engineer workflow through goal interview, engineer-authored planning, adversarial plan review, implementation, adversarial code review, and delivery. The manager owns the interview, the resulting goal brief, and both review gates; one persistent engineer session owns the plan and the implementation. Use only when the user explicitly says "orca two-agent loop" or "manager-engineer loop," or deliberately asks two agents to plan, implement, and review a goal end to end with Orca.
 disable-model-invocation: true
 ---
 
@@ -11,12 +11,12 @@ the user explicitly starts this workflow. Keep the user involved through the
 goal interview, then operate autonomously except for the last-resort escape
 hatch below.
 
-This skill defines workflow policy, not Orca command syntax. Before acting, use
-the installed `orca-cli` skill to resolve the correct Orca executable for the
-current platform and environment; never assume bare `orca`. Confirm that
-`grill-the-goal` and `adversarial-review` are discoverable to the manager, then
-fetch and follow the version-matched guides. Replace `<ORCA>` with the resolved
-executable; do not run the placeholder literally.
+This skill defines workflow policy, not Orca command syntax. Before acting,
+confirm that `orca-cli`, `grill-the-goal`, and `adversarial-review` are
+discoverable to the manager. Use the installed `orca-cli` skill to resolve the
+correct Orca executable for the current platform and environment; never assume
+bare `orca`. Then fetch and follow the version-matched guides. Replace `<ORCA>`
+with the resolved executable; do not run the placeholder literally.
 
 ```bash
 <ORCA> skills get orchestration
@@ -30,15 +30,21 @@ override remembered syntax and the limited provider conventions below.
 ## Roles and Authority
 
 - **Manager:** the already-running agent that invoked this skill. Own the goal
-  interview, plan, Run, coordinator commands, review, and delivery. Do not
-  relaunch the manager to change its model or thinking level.
-- **Engineer:** one persistent supervised worker session. Own implementation and
-  send `ask`, `heartbeat`, `escalation`, and `worker_done` from its own terminal
-  under the active Dispatch contract.
+  interview, the resulting brief, the Run, coordinator commands, both review
+  gates, and delivery coordination. Do not author the plan or the
+  implementation. Do not relaunch the manager to change its model or thinking
+  level.
+- **Engineer:** one persistent supervised worker session. Own the plan and the
+  implementation end to end: draft `plan.md` from the brief, revise it under
+  review, implement it, resolve review findings, and carry out the agreed
+  delivery boundary once the manager approves. Send `ask`, `heartbeat`,
+  `escalation`, and `worker_done` from its own terminal under the active
+  Dispatch contract.
 
-The manager may create and revise `plan.md` before implementation. Once
-implementation starts, the manager treats the engineer worktree as read-only;
-all code fixes belong to the engineer.
+The manager writes nothing in the engineer worktree and reviews read-only from
+the first Dispatch onward. Every plan and code edit belongs to the engineer.
+The interview conversation stays with the manager; only the brief crosses to
+the engineer, so the brief must stand on its own.
 
 ## Resolve the Engineer
 
@@ -89,47 +95,48 @@ Decide Orca lineage and Git base separately:
 
 1. **Interview:** invoke `grill-the-goal`. Stop when it produces a
    decision-ready goal brief. Keep this phase about *what*, not implementation.
-2. **Plan:** decide the implementation approach with concise, stated defaults.
-   Cover file-level changes, risks, validation, acceptance checks, the delivery
-   boundary, and who owns any commit, PR, or merge without a second blocking
-   interview.
-3. **Provision:** create one Run and the chosen Orca worktree and persistent
-   engineer terminal. The manager remains in its current worktree. Initial
-   provisioning intentionally uses the guide's low-level worktree/terminal path
-   rather than `worker-start`, because `plan.md` must exist before the first
-   review Dispatch. Prefer agent-first worktree creation when it supports the
-   exact worker command; use the documented custom-command path otherwise.
-4. **Materialize the plan:** write canonical `plan.md` in the engineer
-   worktree before sending the first review Dispatch. The manager may revise
-   only this file during plan review; do not dirty the manager's worktree unless
-   the user selected the shared-current exception above.
-5. **Review the plan:** create a review-only Task and Dispatch instructing the
-   engineer to invoke `adversarial-review` against `plan.md`. First confirm the
-   skill is discoverable in the engineer's own agent environment using that
-   agent's native discovery mechanism. When a remote environment cannot be
-   preflighted, make discovery the first clause of the Dispatch and require
-   immediate escalation if it is unavailable. The engineer reports findings
-   through its own `worker_done`; the manager accepts or
-   rejects them with reasons and revises `plan.md` when warranted. This is an
-   explicit exception to the review-only coordinator-edit rule: the user made
-   the manager owner of the plan artifact. It never authorizes manager code
-   edits.
-6. **Implement:** dispatch the agreed plan as a fresh Task and Dispatch to the
+   Make sure the brief settles the acceptance criteria and the delivery
+   boundary: whether the work ends at a validated working tree, a commit, a
+   pushed branch, an open PR, or a merge. That boundary is outcome scope and
+   belongs to the user. Who performs those steps is not a user question — the
+   engineer does, because the manager never writes in that worktree.
+2. **Provision:** create the Run, create the first Task whose spec carries the
+   goal brief inline and asks the engineer to draft `plan.md`, then start the
+   engineer through the guide's composed `worker-start` path. Nothing needs to
+   exist in the worktree beforehand, so provisioning and the first Dispatch are
+   one step. `worker-start` expresses every lineage and Git-base choice from the
+   section above; fall back to the guide's custom-argv path only when the
+   engineer needs a custom agent command, and attach that terminal to the
+   Dispatch rather than dispatching outside the composed path. The manager
+   remains in its own worktree.
+3. **Plan:** the engineer drafts `plan.md` in its own worktree from the brief —
+   approach, file-level changes, risks, validation strategy, and sequencing —
+   then reports `worker_done`. `plan.md` is a working artifact: keep it out of
+   the deliverable commit and out of the reviewed implementation diff.
+4. **Review the plan:** the manager reads `plan.md` read-only and invokes
+   `adversarial-review` against it. Dispatch accepted findings back as a fresh
+   Task and Dispatch; the engineer revises `plan.md` or defends it with
+   evidence. Iterate until the manager accepts the plan.
+5. **Implement:** dispatch the agreed plan as a fresh Task and Dispatch to the
    same engineer terminal. The engineer implements, validates, and reports
    `worker_done` with evidence and modified paths.
-7. **Review the implementation:** the manager invokes `adversarial-review`
+6. **Review the implementation:** the manager invokes `adversarial-review`
    read-only against the engineer's diff and validation evidence. Dispatch
    accepted fixes or requests for stronger evidence back to the same engineer.
-8. **Deliver:** after acceptance, summarize the result and validation, identify
-   the engineer worktree, and hand any commit, PR, or merge to the owner named
-   in the plan. Use native Orca status commands: keep the worktree `in-review`
-   while the agreed integration step remains outstanding; mark it `completed`
-   only when the agreed delivery boundary has been satisfied.
+7. **Deliver:** after acceptance, summarize the result and validation and
+   identify the engineer worktree. The manager approves; the engineer then
+   carries out the agreed delivery boundary as a final Task and Dispatch,
+   unless the brief names a different owner for that step. Use native Orca
+   status commands: keep the worktree `in-review` while the agreed integration
+   step remains outstanding; mark it `completed` only when the agreed delivery
+   boundary has been satisfied.
 
 ## Rounds, Context, and Convergence
 
-- Use a fresh Task + Dispatch for every plan-review round, implementation, and
-  code-review round. This creates clean lifecycle and provenance boundaries.
+- Use a fresh Task + Dispatch for the plan draft, every plan-review round, the
+  implementation, and every code-review round. This creates clean lifecycle and
+  provenance boundaries. The plan draft is the Dispatch created by
+  `worker-start`, not a review round.
 - Reuse the same engineer terminal throughout. Its model context persists
   across rounds; a fresh Dispatch does **not** create context isolation.
 - Make every task specification self-contained even though context persists, so
@@ -156,8 +163,8 @@ the agents can settle.
 
 - Never edit the manager's worktree, another worktree, or `main` as part of
   implementation unless the user explicitly selected the shared current
-  worktree for required uncommitted changes. Limit manager writes in the
-  engineer worktree to `plan.md` before implementation begins.
+  worktree for required uncommitted changes. The manager writes nothing in the
+  engineer worktree.
 - Wait through Orca's mailbox lifecycle; do not poll terminal input. Treat wait
   timeouts as checkpoints, not automatic worker failure.
 - If a Dispatch fails three times or the engineer terminal dies, report the
