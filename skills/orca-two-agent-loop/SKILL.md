@@ -48,28 +48,32 @@ the engineer, so the brief must stand on its own.
 
 ## Resolve the Engineer
 
-If the user omitted the agent family, ask them to choose it. Do not infer
-Codex versus Claude versus OMP from unrelated configurations.
+Explicit user values always win. Fill anything the user left unspecified from
+the default engineer — Codex / `gpt-5.6-sol` / `xhigh` — rather than inferring
+it from unrelated configurations. Confirm the resolved spec once:
 
-After the family is known, explicit model and thinking values win. Resolve
-missing values from that agent's real configuration and current CLI help, then
-confirm once:
+> Engineer: `<agent>` / `<model>` / `<thinking>`. Say so to change.
 
-> Engineer: `<agent>` / `<model>` / `<thinking>` (`<source>`). Say so to change.
+Proceed unless the user objects.
 
-Proceed unless the user objects. Never insert a hard-coded model into this
-template.
+Use these launch shapes directly rather than spending a `--help` call to
+rediscover them. Verify only when a command fails, and prefer a fetched guide
+that documents the provider differently:
 
-The Orca guides already document known agent IDs and the custom Codex launch
-path. Do not repeat those instructions here. When the fetched guide lacks an
-equivalent custom launch convention, verify the installed CLI help and use:
+- Codex: `codex --model <model> -c model_reasoning_effort="<effort>"` — effort
+  is one of `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`.
+- Claude Code: `claude --model <model> --effort <level>` — effort is one of
+  `low`, `medium`, `high`, `xhigh`, `max`.
+- OMP: `omp --model <model> --thinking <level>` — thinking is one of `off`,
+  `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, `auto`.
 
-- Claude Code: `claude --model <model> --effort <level>`
-- OMP: `omp --model <model> --thinking <level>`
+The default engineer therefore launches as
+`codex --model gpt-5.6-sol -c model_reasoning_effort="xhigh"`. Because
+`worker-start --agent` cannot carry Codex model or effort arguments, the
+default always takes the custom-argv path below.
 
 Wrap any custom agent command with the native Orca terminal/worktree procedure
-from the fetched guide. If a newer guide documents the provider, follow it
-instead of these conventions.
+from the fetched guide.
 
 ## Placement and Git Base
 
@@ -105,10 +109,12 @@ Decide Orca lineage and Git base separately:
    engineer through the guide's composed `worker-start` path. Nothing needs to
    exist in the worktree beforehand, so provisioning and the first Dispatch are
    one step. `worker-start` expresses every lineage and Git-base choice from the
-   section above; fall back to the guide's custom-argv path only when the
-   engineer needs a custom agent command, and attach that terminal to the
-   Dispatch rather than dispatching outside the composed path. The manager
-   remains in its own worktree.
+   section above, but not a custom agent command. Any engineer carrying a model
+   or effort argument — including the default — takes the guide's custom-argv
+   path instead: create the worktree, create the terminal with that command,
+   then attach it with `worker-start --terminal <handle>` so the Dispatch stays
+   composed. Use plain `worker-start --agent <id>` only when no custom argv is
+   needed. The manager remains in its own worktree.
 3. **Plan:** the engineer drafts `plan.md` in its own worktree from the brief —
    approach, file-level changes, risks, validation strategy, and sequencing —
    then reports `worker_done`. `plan.md` is a working artifact: keep it out of
