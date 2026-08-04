@@ -1,0 +1,7 @@
+interface:
+  display_name: "Orca Two-Agent Loop"
+  short_description: "Run a supervised manager-engineer workflow"
+  default_prompt: "Use $orca-two-agent-loop to interview me, then supervise one engineer through planning, implementation, and review with Orca."
+
+policy:
+  allow_implicit_invocation: false

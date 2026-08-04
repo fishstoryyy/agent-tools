@@ -8,6 +8,9 @@ Skill folders must:
 - Contain a `SKILL.md` file.
 - Set `name` in frontmatter to the folder name.
 - Include a clear `description` that explains what the skill does and when to use it.
+- Include `agents/openai.yaml` with an explicit implicit-invocation policy.
+- Keep Claude Code and Codex invocation policies aligned as documented in
+  `docs/skill-standards.md`.
 - Keep core instructions in `SKILL.md` and move large optional context into `references/`.
 
 Run `npm run validate:skills` from the repo root before publishing changes.

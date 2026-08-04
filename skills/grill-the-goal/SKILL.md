@@ -1,7 +1,6 @@
 ---
 name: grill-the-goal
-description: Interview the user to turn a vague or unscoped goal into a decision-ready brief by clarifying the relevant context, actors, sources, outcome, success evidence, tradeoffs, constraints, and unknowns before implementation planning. Use when the user has a fuzzy goal, an unscoped request, or asks to "grill the goal," "scope this," or "figure out what I actually want." Deliberately avoids implementation steps, architecture, and sequencing — pair with plan mode or grill-me afterward.
-disable-model-invocation: true
+description: Interview the user to turn a vague or unscoped goal into a decision-ready brief by clarifying the relevant context, actors, sources, outcome, success evidence, tradeoffs, constraints, and unknowns before implementation planning. Use when the user explicitly asks to "grill the goal," "scope this," or "figure out what I actually want," when a request is genuinely vague or unscoped, or when an active workflow delegates its goal-interview phase. Deliberately avoids implementation steps, architecture, and sequencing.
 ---
 
 # Grill the Goal

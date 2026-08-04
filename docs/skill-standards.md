@@ -6,8 +6,12 @@ Skills in this repo should follow the Agent Skills folder model:
 - The folder contains a required `SKILL.md`.
 - `SKILL.md` contains YAML frontmatter with `name` and `description`.
 - The `name` must match the folder name.
-- Every skill sets `disable-model-invocation: true` in `SKILL.md` for manual-only Claude Code invocation.
-- Every skill sets `policy.allow_implicit_invocation: false` in `agents/openai.yaml` for manual-only Codex invocation.
+- Every skill declares the same invocation policy for Claude Code and Codex:
+  - Manual-only skills set `disable-model-invocation: true` in `SKILL.md` and
+    `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
+  - Implicitly invocable skills omit `disable-model-invocation` and set
+    `policy.allow_implicit_invocation: true`.
+- Every skill includes provider metadata in `agents/openai.yaml`.
 - Optional resource folders are `scripts/`, `references/`, and `assets/`.
 
 ## Authoring Guidelines
@@ -22,7 +26,8 @@ Skills in this repo should follow the Agent Skills folder model:
 
 - In Claude Code, invoke a skill with `/skill-name`.
 - In Codex, mention a skill with `$skill-name` or choose it from `/skills`.
-- OpenCode can discover these skills from `.agents/skills`, but currently ignores the provider-specific manual-only metadata. The skills remain usable there, but the model may invoke them automatically.
+- OpenCode can discover these skills from `.agents/skills`, but may not honor
+  provider-specific invocation metadata consistently.
 
 ## Validation
 

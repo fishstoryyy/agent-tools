@@ -46,21 +46,22 @@ function parseFrontmatter(content, filePath) {
   return values;
 }
 
-function hasManualOnlyCodexPolicy(content) {
+function readCodexImplicitInvocationPolicy(content) {
   const lines = content.split(/\r?\n/);
   const policyIndex = lines.findIndex((line) => /^policy:\s*(?:#.*)?$/.test(line));
 
-  if (policyIndex === -1) return false;
+  if (policyIndex === -1) return null;
 
   for (const line of lines.slice(policyIndex + 1)) {
     if (!line.trim() || line.trimStart().startsWith("#")) continue;
     if (!line.startsWith(" ") && !line.startsWith("\t")) break;
-    if (/^ {2}allow_implicit_invocation:\s*false\s*(?:#.*)?$/.test(line)) {
-      return true;
+    const match = /^ {2}allow_implicit_invocation:\s*(true|false)\s*(?:#.*)?$/.exec(line);
+    if (match) {
+      return match[1] === "true";
     }
   }
 
-  return false;
+  return null;
 }
 
 async function pathExists(targetPath) {
@@ -120,22 +121,31 @@ async function validateSkill(skillName) {
     errors.push(`${relativeSkillPath}: description must be 1024 characters or fewer`);
   }
 
-  if (frontmatter["disable-model-invocation"] !== "true") {
+  const claudeManualOnly = frontmatter["disable-model-invocation"] === "true";
+  if (
+    frontmatter["disable-model-invocation"] !== undefined &&
+    frontmatter["disable-model-invocation"] !== "true"
+  ) {
     errors.push(
-      `${relativeSkillPath}: disable-model-invocation must be true for manual-only Claude Code invocation`,
+      `${relativeSkillPath}: disable-model-invocation must be true or omitted`,
     );
   }
 
   const openaiMetadataPath = path.join(skillPath, "agents", "openai.yaml");
   if (!(await pathExists(openaiMetadataPath))) {
-    errors.push(
-      `${relativeSkillPath}: missing agents/openai.yaml required for manual-only Codex invocation`,
-    );
+    errors.push(`${relativeSkillPath}: missing agents/openai.yaml`);
   } else {
     const openaiMetadata = await readFile(openaiMetadataPath, "utf8");
-    if (!hasManualOnlyCodexPolicy(openaiMetadata)) {
+    const codexImplicitInvocation = readCodexImplicitInvocationPolicy(openaiMetadata);
+    if (codexImplicitInvocation === null) {
       errors.push(
-        `${relativeSkillPath}: agents/openai.yaml must set policy.allow_implicit_invocation to false`,
+        `${relativeSkillPath}: agents/openai.yaml must set policy.allow_implicit_invocation to true or false`,
+      );
+    } else if (claudeManualOnly === codexImplicitInvocation) {
+      const expectedPolicy = claudeManualOnly ? "false" : "true";
+      errors.push(
+        `${relativeSkillPath}: invocation policies disagree; ` +
+          `policy.allow_implicit_invocation must be ${expectedPolicy}`,
       );
     }
   }

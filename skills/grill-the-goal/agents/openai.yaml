@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $grill-the-goal to turn my vague goal into a decision-ready brief before planning implementation."
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true
