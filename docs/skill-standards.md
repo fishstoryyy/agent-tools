@@ -26,8 +26,10 @@ Skills in this repo should follow the Agent Skills folder model:
 
 - In Claude Code, invoke a skill with `/skill-name`.
 - In Codex, mention a skill with `$skill-name` or choose it from `/skills`.
-- OpenCode can discover these skills from `.agents/skills`, but may not honor
-  provider-specific invocation metadata consistently.
+- OpenCode can discover these skills from `.agents/skills`, but may ignore
+  provider-specific invocation metadata. A manual-only skill can therefore
+  auto-invoke in OpenCode; do not rely on that metadata as an OpenCode safety
+  boundary.
 
 ## Validation
 

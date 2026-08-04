@@ -6,7 +6,9 @@ description: Stress-test a plan, design, or implementation from first principles
 # Adversarial Review
 
 Find where the artifact is wrong before reality does. Review read-only unless
-the user explicitly asks for fixes.
+the user explicitly asks for fixes. Match depth to stakes: give a small,
+reversible change a short pass; reserve the full apparatus for consequential or
+hard-to-reverse work.
 
 ## Establish the Target
 

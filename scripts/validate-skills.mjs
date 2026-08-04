@@ -142,10 +142,11 @@ async function validateSkill(skillName) {
         `${relativeSkillPath}: agents/openai.yaml must set policy.allow_implicit_invocation to true or false`,
       );
     } else if (claudeManualOnly === codexImplicitInvocation) {
-      const expectedPolicy = claudeManualOnly ? "false" : "true";
       errors.push(
-        `${relativeSkillPath}: invocation policies disagree; ` +
-          `policy.allow_implicit_invocation must be ${expectedPolicy}`,
+        `${relativeSkillPath}: invocation policies disagree; for manual-only invocation, ` +
+          `set disable-model-invocation: true and allow_implicit_invocation: false; ` +
+          `for implicit invocation, omit disable-model-invocation and set ` +
+          `allow_implicit_invocation: true`,
       );
     }
   }
