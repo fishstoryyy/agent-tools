@@ -95,6 +95,12 @@ Decide Orca lineage and Git base separately:
   work. Choosing the shared worktree explicitly waives the default checkout
   isolation for that run.
 
+Before taking the custom-argv path into a new worktree, read the repository's
+agent-startup policy with `<ORCA> repo show --repo <repo> --json`; neither
+fetched guide names the field that carries it. That path cannot honor
+`wait-for-setup`, so if the policy requires it and agent-first cannot match the
+resolved model and effort, use the escape hatch. Never race or relax the policy.
+
 ## Workflow
 
 1. **Interview:** invoke `grill-the-goal`. Stop when it produces a
@@ -133,10 +139,18 @@ Decide Orca lineage and Git base separately:
 6. **Review the implementation:** the manager invokes `adversarial-review`
    read-only against the engineer's diff and validation evidence. Dispatch
    accepted fixes or requests for stronger evidence back to the same engineer.
+   If the delivery boundary integrates — merge or rebase — the engineer first
+   prepares the complete integration candidate against the current target,
+   including delivery-relevant untracked files, and this gate reviews that
+   candidate rather than the pre-integration diff. A non-integrating boundary
+   needs no second gate.
 7. **Deliver:** after acceptance, summarize the result and validation and
    identify the engineer worktree. The manager approves; the engineer then
    carries out the agreed delivery boundary as a final Task and Dispatch,
-   unless the brief names a different owner for that step. Use native Orca
+   unless the brief names a different owner for that step. Finalize only while
+   both the target head and the reviewed candidate are unchanged; if either
+   moved, rebuild, re-validate, and return through step 6 when content or
+   evidence changed. Commit-metadata changes do not count. Use native Orca
    status commands: keep the worktree `in-review` while the agreed integration
    step remains outstanding; mark it `completed` only when the agreed delivery
    boundary has been satisfied.
@@ -162,12 +176,13 @@ Decide Orca lineage and Git base separately:
 
 ## User Escape Hatch
 
-After the interview, re-engage the user only when adversarial review exposes a
-consequential, hard-to-reverse decision that the agents cannot resolve
-faithfully with evidence. This includes technical decisions when choosing on
-the user's behalf would exceed the manager's authority. This takes precedence
-over the round-limit default. Do not ask the user about implementation details
-the agents can settle.
+After the interview, re-engage the user only when a fixed workflow constraint
+conflicts with the resolved engineer spec or an explicit user choice, or when
+the agents cannot faithfully resolve a consequential, hard-to-reverse decision
+with evidence. This includes technical decisions when choosing on the user's
+behalf would exceed the manager's authority. This takes precedence over the
+round-limit default. Do not ask the user about implementation details the
+agents can settle.
 
 ## Guardrails
 
@@ -175,16 +190,27 @@ the agents can settle.
   implementation unless the user explicitly selected the shared current
   worktree for required uncommitted changes. The manager writes nothing in the
   engineer worktree.
-- A Dispatch that reports acceptance has not necessarily delivered. Probe once
-  with a short `terminal wait --for tui-idle`: immediate satisfaction means the
-  prompt never landed, so re-deliver it; a timeout means the worker is busy.
-  Never release or stop a worker on that signal alone.
-- Release the engineer terminal on every exit — delivery, blocked loop, or
-  reported blocker — not only on success. Retain it instead only when the user
-  asks to keep it for debugging.
+- `input_accepted` is a send receipt, not proof the engineer took up the prompt.
+  Never infer non-delivery from `tui-idle`, a wait timeout, missing terminal
+  text, or an absent heartbeat — `tui-idle` reports idle mid-turn. Take uptake
+  only from positive evidence attributable to the current Dispatch: its task in
+  `worker-read`, its heartbeat, or post-dispatch output. If uptake stays
+  ambiguous after a bounded acknowledgement request, fence the old Dispatch
+  before any retry, or report the loop blocked. Never run two Dispatches for
+  the same round.
+- Account for the engineer terminal on every exit. On a loop exit after an
+  accepted `worker_done`, succeeded or failed, call `worker-release`; retain it
+  only at the user's request. If release retains the exact manager-created
+  custom-argv terminal solely because it is external or pre-existing, verify
+  that no active Dispatch owns it, then close that terminal explicitly; never
+  substitute a close for `release_pending` or `release_unknown`, whose receipts
+  govern recovery. On escalation, either resolve it and continue to settlement
+  or, if ending the run, `worker-stop` the Dispatch and follow its receipt —
+  never release an unsettled Dispatch. Use `worker-abandon` only when the
+  receipt leaves the outcome unknown, and report that residual uncertainty
+  rather than calling the loop clean.
 - Wait through Orca's mailbox lifecycle; do not poll terminal input. Treat wait
-  timeouts as checkpoints, not automatic worker failure — unless the delivery
-  probe above never confirmed the worker started.
+  timeouts as checkpoints, not automatic worker failure.
 - If a Dispatch fails three times or the engineer terminal dies, report the
   blocker to the user instead of repeatedly retrying.
 - Do not claim fresh-context review, successful skill composition, or runtime
