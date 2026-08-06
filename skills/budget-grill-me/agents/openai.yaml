@@ -1,0 +1,7 @@
+interface:
+  display_name: "Budget Grill Me"
+  short_description: "Six-question interview for sharper intent"
+  default_prompt: "Use $budget-grill-me to sharpen this request with no more than six high-value questions."
+
+policy:
+  allow_implicit_invocation: false
