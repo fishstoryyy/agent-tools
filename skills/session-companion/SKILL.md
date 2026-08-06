@@ -15,18 +15,18 @@ You do this by reconstructing the other conversation from its session `.jsonl` f
 
 ## The parser
 
-A Python script reconstructs just the human-readable dialogue (drops tool calls, tool results, thinking, and slash-command scaffolding):
+A Python script reconstructs just the human-readable dialogue. It drops ordinary tool calls and results, thinking by default, slash-command scaffolding, and other meta while preserving Claude `AskUserQuestion` prompts and recorded answers plus an `[Image attached]` marker when a turn included an image:
 
 ```
 python3 <this-skill-dir>/scripts/parse_session.py SESSION.jsonl [--since CURSOR] [--include-thinking] [--include-sidechains]
 ```
 
-- No flags → full transcript, newest logic last. Turns are numbered and labelled `You` (the user) / `Agent` (the other agent) with timestamps.
-- `--since CURSOR` → prints only the turns after CURSOR. Use this on every refresh.
-- The **last two lines are always `TURNS_TOTAL=<int>`** (turn count, for display) **and `CURSOR=<uuid>`**. Remember the **CURSOR** and pass it as `--since` next refresh — a uuid survives rewinds where a turn number would not.
-- **Rewinds are handled for you.** The parser reconstructs only the live branch, so rewound/abandoned turns never appear. If a refresh prints `*** REWOUND ... ***`, the user rolled the other session back: discard anything you noted after the stated turn and treat the turns shown as the current conversation.
+- No flags → full transcript in chronological order. Turns are numbered and labelled `You` (the user) / `Agent` (the other agent) with timestamps.
+- `--since CURSOR` → prints only the active turns after CURSOR. Use this on every refresh. `--cursor CURSOR` is an alias.
+- The final three state lines are `BRANCH_RESET=0|1`, `TURNS_TOTAL=<int>` (turn count, for display), and `CURSOR=<id>`. Remember the **CURSOR** and pass it as `--since` next refresh — a uuid survives rewinds where a turn number would not.
+- **Rewinds are handled for you.** The parser reconstructs only the live branch, so rewound/abandoned turns never appear. If a refresh prints `*** REWOUND ... ***` or `BRANCH_RESET=1`, discard anything you noted after the divergence and treat the printed turns as the current conversation. When ancestry is recoverable, the parser prints only the current turns after the divergence; otherwise it prints the full active transcript.
 - `--include-thinking` → includes the other agent's reasoning **if the session stored it**. In most setups thinking is not persisted (only a signature), so this usually adds nothing — if so, infer the agent's rationale from its visible text instead of promising hidden reasoning.
-- `--include-sidechains` → includes subagent (Task) turns. Default is the main thread only; use this only if the user asks about what a subagent did.
+- `--include-sidechains` → includes embedded subagent turns attached to the active branch. It does not discover subagents stored in separate session files; use it only if the user asks about what an embedded subagent did.
 
 The parser tolerates a truncated final line, so it is safe to run against a live, growing file.
 
@@ -54,8 +54,8 @@ Stay a genuine thinking partner. Answer whatever the user asks, e.g.:
 ### 3. Refresh (the other session moved)
 When the user says the other session advanced ("they replied", "check for updates", "refresh"):
 - Re-run the parser with `--since <last CURSOR>`.
-- If it prints `(no new turns ...)`, tell them nothing new has landed yet.
-- If it prints `*** REWOUND ... ***`, the user rolled the session back — drop anything you noted past the divergence and re-orient from the turns shown.
+- If it reports no new persisted turns, say exactly that. Do not claim the terminal has not advanced: a currently open interactive prompt can be visible before Claude persists it to JSONL.
+- If it prints `*** REWOUND ... ***` or `BRANCH_RESET=1`, drop anything you noted past the divergence and re-orient from the turns shown.
 - Otherwise read only the new turn(s), update your `CURSOR`, and give a fresh proactive orientation read focused on **what's new**.
 
 ## Proactive orientation read (orient, don't draft)

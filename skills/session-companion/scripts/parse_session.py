@@ -1,32 +1,29 @@
 #!/usr/bin/env python3
-"""Reconstruct the human-readable conversation from a Claude Code session .jsonl.
+"""Reconstruct the active human-readable branch of a Claude Code session.
 
-Extracts only user prompts and assistant replies, dropping tool calls, tool
-results, thinking (by default), slash-command scaffolding, and other meta.
-Designed to run repeatedly against a live, growing session file.
-
-A session is a tree, not a flat log: rewinding or editing a prompt forks it
-and leaves the abandoned turns in the file. Only the live branch is
-reconstructed -- the parentUuid chain from the newest message back to the
-root -- so rewound turns are skipped rather than replayed as real dialogue.
+Ordinary tool chatter, meta records, abandoned rewind branches, and thinking
+(by default) are omitted. Interactive questions, recorded answers, text, and
+image placeholders are preserved.
 
 Usage:
     parse_session.py SESSION.jsonl [--since CURSOR] [--include-thinking]
                                    [--include-sidechains]
 
-    --since CURSOR       Show only turns after CURSOR -- the value from the
-                         CURSOR= line of a prior run (a turn uuid). A plain
-                         integer turn index also works. Omit for the full
-                         transcript.
-    --include-thinking   Include the assistant's thinking blocks.
-    --include-sidechains Include subagent (Task) turns; default is main thread.
+    --since CURSOR       Show active turns after the prior CURSOR. UUID cursors
+                         detect rewinds; a plain turn number also works.
+    --cursor CURSOR      Alias for --since.
+    --include-thinking   Include persisted assistant thinking blocks.
+    --include-sidechains Include embedded subagent turns attached to the active
+                         branch. Separate subagent files are not loaded.
 
-The final two stdout lines are always:
-    TURNS_TOTAL=<int>    turns on the live branch (for display)
-    CURSOR=<uuid>        pass back as --since next refresh. It survives
-                         rewinds: if the cursor was rolled back, the run
-                         prints a "*** REWOUND ... ***" notice and shows the
-                         current conversation from the divergence point.
+The final three stdout lines are always:
+    BRANCH_RESET=0|1     whether prior branch state must be discarded
+    TURNS_TOTAL=<int>    visible turns on the active branch
+    CURSOR=<id>          pass back as --since on the next refresh
+
+When an abandoned cursor still has a traceable active ancestor, a rewind prints
+only the current turns after that divergence. If ancestry cannot be recovered,
+the full active transcript is printed instead.
 """
 
 import argparse
@@ -34,302 +31,470 @@ import json
 import re
 import sys
 
-# User strings dominated by these markers are pure CLI/system meta, not dialogue.
+
 _META_MARKERS = ("<local-command-stdout>", "<local-command-caveat>")
-# Mechanical slash-command wrappers: drop the tag+inner (the invocation itself).
 _DROP_WRAPPERS = re.compile(
     r"<(command-name|command-message)>.*?</\1>", re.DOTALL
 )
-# The args a user passed to a slash command ARE their intent: keep the inner text.
 _UNWRAP = re.compile(r"</?(command-args|command-contents)>")
-# Any residual command-ish tags.
 _STRAY_TAGS = re.compile(r"</?(command-[a-z-]+|local-command-[a-z-]+)>")
+_QUESTION_TOOL_NAMES = {"AskUserQuestion"}
 
 
-def clean_user_text(s):
-    """Return conversational text from a user string, or '' if it is noise."""
-    if any(m in s for m in _META_MARKERS):
+def clean_user_text(text):
+    """Return conversational user text, or empty text for CLI/system noise."""
+    if any(marker in text for marker in _META_MARKERS):
         return ""
-    s = _DROP_WRAPPERS.sub("", s)
-    s = _UNWRAP.sub("", s)
-    s = _STRAY_TAGS.sub("", s)
-    return s.strip()
+    text = _DROP_WRAPPERS.sub("", text)
+    text = _UNWRAP.sub("", text)
+    text = _STRAY_TAGS.sub("", text)
+    return text.strip()
 
 
-def blocks_text(content, include_thinking):
-    """Join text (and optionally thinking) blocks from a list-form message."""
-    parts = []
-    for b in content:
-        if not isinstance(b, dict):
+def render_questions(questions):
+    """Render Claude Code AskUserQuestion arguments as readable dialogue."""
+    if not isinstance(questions, list):
+        return ""
+
+    rendered = []
+    for item in questions:
+        if not isinstance(item, dict):
             continue
-        t = b.get("type")
-        if t == "text":
-            parts.append(b.get("text", ""))
-        elif t == "thinking" and include_thinking:
-            think = b.get("thinking", "") or b.get("text", "")
-            if think.strip():
-                parts.append("[thinking] " + think)
-        # tool_use / tool_result / image / etc. are intentionally dropped.
-    return "\n".join(p for p in parts if p.strip()).strip()
+        question = str(item.get("question") or "").strip()
+        if not question:
+            continue
+        header = str(item.get("header") or "").strip()
+        rendered.append(f"Question — {header}" if header else "Question")
+        rendered.append(question)
+
+        options = item.get("options")
+        if isinstance(options, list):
+            for number, option in enumerate(options, 1):
+                if not isinstance(option, dict):
+                    continue
+                label = str(option.get("label") or "").strip()
+                description = str(option.get("description") or "").strip()
+                if not label:
+                    continue
+                suffix = f" — {description}" if description else ""
+                rendered.append(f"{number}. {label}{suffix}")
+
+        if item.get("multiSelect"):
+            rendered.append("(Multiple selections allowed.)")
+        rendered.append("")
+
+    return "\n".join(rendered).strip()
 
 
 def _tool_result_text(content):
-    """Flatten a tool_result's content (a str, or a list of text blocks)."""
+    """Flatten a tool result's string or list of text blocks."""
     if isinstance(content, str):
         return content
     if isinstance(content, list):
-        return "\n".join(b.get("text", "") for b in content
-                         if isinstance(b, dict) and b.get("type") == "text")
+        return "\n".join(
+            block.get("text", "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
     return ""
 
 
-def answers_from_tool_results(content, tool_names):
-    """The user's answers to AskUserQuestion arrive as a tool_result, not as
-    text -- and that result also echoes the question. Surface it so a decision
-    the user made through the question tool isn't dropped. Every other
-    tool_result (file reads, command output, ...) stays dropped."""
-    if not tool_names:
+def render_question_answers(obj, question_tool_ids):
+    """Render a persisted answer to AskUserQuestion, without other results."""
+    result = obj.get("toolUseResult")
+    if isinstance(result, dict) and isinstance(result.get("answers"), dict):
+        lines = []
+        for question, answer in result["answers"].items():
+            question_text = str(question).strip()
+            if isinstance(answer, list):
+                answer_text = ", ".join(str(value) for value in answer)
+            else:
+                answer_text = str(answer).strip()
+            if question_text and answer_text:
+                lines.append(f"{question_text} → {answer_text}")
+        if lines:
+            return "\n".join(lines)
+
+    content = (obj.get("message") or {}).get("content")
+    if not isinstance(content, list):
         return ""
-    out = []
-    for b in content:
-        if not (isinstance(b, dict) and b.get("type") == "tool_result"):
+    answers = []
+    for block in content:
+        if not isinstance(block, dict) or block.get("type") != "tool_result":
             continue
-        if b.get("is_error"):
+        if block.get("is_error") or block.get("tool_use_id") not in question_tool_ids:
             continue
-        if tool_names.get(b.get("tool_use_id")) != "AskUserQuestion":
-            continue
-        s = _tool_result_text(b.get("content")).strip()
-        if s and "<tool_use_error>" not in s:
-            out.append(s)
-    return "\n".join(out)
+        answer = _tool_result_text(block.get("content")).strip()
+        if answer and "<tool_use_error>" not in answer:
+            answers.append(answer)
+    return "\n".join(answers)
 
 
-def extract_turn(obj, include_thinking, tool_names=None):
-    """Return (role_label, text) for a conversational turn, or None to skip."""
-    if obj.get("type") not in ("user", "assistant"):
+def render_content(
+        content, *, include_thinking=False, include_questions=False,
+        clean_user=False):
+    """Join readable text, images, thinking, and interactive questions."""
+    if isinstance(content, str):
+        return clean_user_text(content) if clean_user else content.strip()
+    if not isinstance(content, list):
+        return ""
+
+    parts = []
+    for block in content:
+        if not isinstance(block, dict):
+            continue
+        block_type = block.get("type")
+        if block_type == "text":
+            text = block.get("text", "")
+            if isinstance(text, str):
+                text = clean_user_text(text) if clean_user else text.strip()
+                if text:
+                    parts.append(text)
+        elif block_type == "image":
+            parts.append("[Image attached]")
+        elif block_type == "thinking" and include_thinking:
+            thinking = block.get("thinking", "") or block.get("text", "")
+            if isinstance(thinking, str) and thinking.strip():
+                parts.append("[thinking] " + thinking)
+        elif (
+            block_type == "tool_use"
+            and include_questions
+            and block.get("name") in _QUESTION_TOOL_NAMES
+        ):
+            question = render_questions((block.get("input") or {}).get("questions"))
+            if question:
+                parts.append(question)
+    return "\n".join(part for part in parts if part.strip()).strip()
+
+
+def extract_turn(obj, include_thinking, question_tool_ids):
+    """Return (role label, text) for a readable turn, or None."""
+    if obj.get("type") not in ("user", "assistant") or obj.get("isMeta"):
         return None
-    if obj.get("isMeta"):
-        return None
-    msg = obj.get("message") or {}
-    role = msg.get("role")
-    content = msg.get("content")
+    message = obj.get("message") or {}
+    role = message.get("role")
+    content = message.get("content")
 
     if role == "user":
-        if isinstance(content, str):
-            text = clean_user_text(content)
-        elif isinstance(content, list):
-            # User list-form messages carry tool_result blocks; keep only text
-            # plus the user's answers to AskUserQuestion (also a tool_result).
-            text = blocks_text(content, include_thinking=False)
-            answers = answers_from_tool_results(content, tool_names)
-            text = "\n".join(p for p in (text, answers) if p).strip()
-        else:
-            text = ""
+        text = render_content(content, clean_user=True)
+        answers = render_question_answers(obj, question_tool_ids)
+        text = "\n".join(part for part in (text, answers) if part).strip()
         label = "You"
     elif role == "assistant":
-        if isinstance(content, list):
-            text = blocks_text(content, include_thinking)
-        elif isinstance(content, str):
-            text = content.strip()
-        else:
-            text = ""
+        text = render_content(
+            content,
+            include_thinking=include_thinking,
+            include_questions=True,
+        )
         label = "Agent"
     else:
         return None
 
     if not text:
         return None
+    if obj.get("isSidechain"):
+        label = f"[subagent] {label}"
     return label, text
 
 
-def active_branch_uuids(objs, by_uuid):
-    """UUIDs on the live conversation branch, or None if it can't be traced.
-
-    The branch is the parentUuid chain from the newest main-thread message
-    back to the root. Appends always land on whatever branch is live, so the
-    last user/assistant line is the branch tip; fall back to the last-prompt
-    leafUuid if there is no such line yet.
-    """
-    leaf = None
-    for o in objs:
-        if (o.get("type") in ("user", "assistant")
-                and not o.get("isSidechain") and o.get("uuid")):
-            leaf = o["uuid"]  # keep the last match: the newest tip
-    if leaf is None:
-        for o in objs:
-            if o.get("type") == "last-prompt" and o.get("leafUuid"):
-                leaf = o["leafUuid"]
-    if leaf is None or leaf not in by_uuid:
+def load_objects(session_path):
+    """Load complete JSON objects, tolerating a live truncated final line."""
+    try:
+        with open(session_path, "r", encoding="utf-8") as session_file:
+            raw_lines = session_file.readlines()
+    except OSError as error:
+        print(f"ERROR: cannot open session file: {error}", file=sys.stderr)
         return None
 
-    active = set()
-    cur = leaf
-    while cur and cur in by_uuid and cur not in active:  # guard against cycles
-        active.add(cur)
-        cur = by_uuid[cur].get("parentUuid")
-    return active
-
-
-def root_of(uuid, by_uuid):
-    """Walk to the root (parentUuid is None) of the branch holding uuid."""
-    seen = set()
-    while uuid in by_uuid and uuid not in seen:
-        parent = by_uuid[uuid].get("parentUuid")
-        if parent is None:
-            return uuid
-        seen.add(uuid)
-        uuid = parent
-    return None  # chain broke before reaching a root
-
-
-def main():
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("session", help="Path to the session .jsonl file")
-    ap.add_argument("--since", default=None, metavar="CURSOR",
-                    help="Show only turns after CURSOR (a turn uuid from a "
-                         "prior CURSOR= line, or a plain turn index)")
-    ap.add_argument("--include-thinking", action="store_true",
-                    help="Include the assistant's thinking blocks")
-    ap.add_argument("--include-sidechains", action="store_true",
-                    help="Include subagent (Task) turns")
-    args = ap.parse_args()
-
-    try:
-        with open(args.session, "r", encoding="utf-8") as f:
-            raw_lines = f.readlines()
-    except OSError as e:
-        print(f"ERROR: cannot open session file: {e}", file=sys.stderr)
-        return 2
-
-    turns = []  # (index, label, timestamp, text, uuid)
-    idx = 0
-    objs = []
-    for line in raw_lines:
+    objects = []
+    for line_number, line in enumerate(raw_lines, 1):
         line = line.strip()
         if not line:
             continue
         try:
-            objs.append(json.loads(line))
+            obj = json.loads(line)
         except json.JSONDecodeError:
-            # A live session may be mid-write: skip a truncated/partial line.
             continue
+        if not isinstance(obj, dict):
+            continue
+        obj["_parser_line"] = line_number
+        objects.append(obj)
+    return objects
 
-    by_uuid = {o["uuid"]: o for o in objs if o.get("uuid")}
-    # Map tool_use id -> tool name so a user's AskUserQuestion answer (which
-    # comes back as a tool_result) can be recognised and kept.
-    tool_names = {}
-    for o in objs:
-        if o.get("type") == "assistant":
-            c = (o.get("message") or {}).get("content")
-            if isinstance(c, list):
-                for b in c:
-                    if isinstance(b, dict) and b.get("type") == "tool_use":
-                        tool_names[b.get("id")] = b.get("name")
-    active = active_branch_uuids(objs, by_uuid)
-    if active is not None and not any(
-            o.get("uuid") in active for o in objs
-            if o.get("type") in ("user", "assistant")
-            and not o.get("isSidechain")):
-        # Couldn't trace a usable branch (e.g. unknown format): show
-        # everything rather than a blank transcript.
+
+def collect_question_tool_ids(objects):
+    """Collect question tool IDs so only their results become user turns."""
+    ids = set()
+    for obj in objects:
+        content = (obj.get("message") or {}).get("content")
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if (
+                isinstance(block, dict)
+                and block.get("type") == "tool_use"
+                and block.get("name") in _QUESTION_TOOL_NAMES
+                and block.get("id")
+            ):
+                ids.add(block["id"])
+    return ids
+
+
+def active_branch_uuids(objects, by_uuid):
+    """Return UUIDs on the live main-thread branch, or None if untraceable."""
+    latest_node = None
+    latest_node_position = -1
+    latest_marker = None
+    latest_marker_position = -1
+
+    for position, obj in enumerate(objects):
+        if obj.get("isSidechain"):
+            continue
+        node_uuid = obj.get("uuid")
+        if node_uuid:
+            latest_node = node_uuid
+            latest_node_position = position
+        if obj.get("type") == "last-prompt" and obj.get("leafUuid"):
+            latest_marker = obj["leafUuid"]
+            latest_marker_position = position
+
+    if latest_node is None:
+        return None
+    leaf = latest_node
+    if latest_marker_position > latest_node_position and latest_marker in by_uuid:
+        leaf = latest_marker
+
+    active = set()
+    current = leaf
+    while current and current in by_uuid and current not in active:
+        active.add(current)
+        current = by_uuid[current].get("parentUuid")
+    return active
+
+
+def belongs_to_active_sidechain(obj, by_uuid, active):
+    """Whether an embedded sidechain ultimately attaches to the active branch."""
+    current = obj.get("uuid")
+    seen = set()
+    while current and current not in seen:
+        if current in active:
+            return True
+        seen.add(current)
+        node = by_uuid.get(current)
+        if node is None:
+            return False
+        current = node.get("parentUuid")
+    return False
+
+
+def select_active_objects(objects, by_uuid, active, include_sidechains):
+    """Select active records, optionally including attached sidechain records."""
+    if active is None:
+        return [
+            obj for obj in objects
+            if include_sidechains or not obj.get("isSidechain")
+        ]
+
+    selected = []
+    for obj in objects:
+        node_uuid = obj.get("uuid")
+        if node_uuid in active:
+            selected.append(obj)
+        elif (
+            include_sidechains
+            and obj.get("isSidechain")
+            and belongs_to_active_sidechain(obj, by_uuid, active)
+        ):
+            selected.append(obj)
+    return selected
+
+
+def root_of(node_uuid, by_uuid):
+    """Return the root UUID, or None when a parent chain is broken."""
+    seen = set()
+    current = node_uuid
+    while current in by_uuid and current not in seen:
+        parent = by_uuid[current].get("parentUuid")
+        if parent is None:
+            return current
+        seen.add(current)
+        current = parent
+    return None
+
+
+def record_id(obj):
+    """Return a stable cursor for a visible record, including legacy files."""
+    if obj.get("uuid"):
+        return str(obj["uuid"])
+    return f"line:{obj.get('_parser_line', '')}"
+
+
+def warn_about_branch_gaps(
+        objects, by_uuid, active, include_thinking, question_tool_ids):
+    """Warn when branch tracing may hide context for non-rewind reasons."""
+    if active is None:
         print("WARN: could not trace the active branch; showing all turns",
               file=sys.stderr)
-        active = None
+        return
 
-    if active is not None and not any(
-            by_uuid[u].get("parentUuid") is None for u in active):
-        # The chain stopped at a missing parent (truncated/compacted log)
-        # instead of the root, so we may be showing only the tail. Say so
-        # loudly -- never drop earlier turns in silence.
+    roots = [
+        node_uuid for node_uuid in active
+        if node_uuid in by_uuid and by_uuid[node_uuid].get("parentUuid") is None
+    ]
+    if not roots:
         print("WARN: live branch does not reach the session root; "
               "earlier turns may be missing from this transcript",
               file=sys.stderr)
-    elif active is not None:
-        # Turns under a *different* root are a separate thread in the same
-        # file (e.g. a resumed session), not rewinds. Flag them; don't hide.
-        live_root = next(u for u in active
-                         if by_uuid[u].get("parentUuid") is None)
-        other = sum(1 for o in objs
-                    if o.get("type") in ("user", "assistant")
-                    and not o.get("isMeta") and not o.get("isSidechain")
-                    and o.get("uuid") and o["uuid"] not in active
-                    and extract_turn(o, args.include_thinking, tool_names)
-                    and root_of(o["uuid"], by_uuid) != live_root)
-        if other:
-            print(f"WARN: {other} turn(s) from a separate thread in this "
-                  f"file (different root) are not shown", file=sys.stderr)
+        return
 
-    for obj in objs:
-        if obj.get("isSidechain") and not args.include_sidechains:
-            continue
-        # Skip turns on abandoned (rewound) branches -- main thread only.
-        if active is not None and not obj.get("isSidechain"):
-            u = obj.get("uuid")
-            if u is not None and u not in active:
-                continue
-        turn = extract_turn(obj, args.include_thinking, tool_names)
+    live_root = roots[0]
+    other_turns = sum(
+        1 for obj in objects
+        if obj.get("type") in ("user", "assistant")
+        and not obj.get("isMeta")
+        and not obj.get("isSidechain")
+        and obj.get("uuid")
+        and obj["uuid"] not in active
+        and root_of(obj["uuid"], by_uuid) != live_root
+        and extract_turn(obj, include_thinking, question_tool_ids)
+    )
+    if other_turns:
+        print(
+            f"WARN: {other_turns} turn(s) from a separate thread in this "
+            "file (different root) are not shown",
+            file=sys.stderr,
+        )
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("session", help="Path to the session .jsonl file")
+    parser.add_argument(
+        "--since", "--cursor", dest="since", default=None, metavar="CURSOR",
+        help="Show active turns after CURSOR (a UUID or plain turn number)",
+    )
+    parser.add_argument(
+        "--include-thinking",
+        action="store_true",
+        help="Include persisted assistant thinking blocks",
+    )
+    parser.add_argument(
+        "--include-sidechains",
+        action="store_true",
+        help="Include embedded subagent turns attached to the active branch",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    objects = load_objects(args.session)
+    if objects is None:
+        return 2
+
+    by_uuid = {obj["uuid"]: obj for obj in objects if obj.get("uuid")}
+    question_tool_ids = collect_question_tool_ids(objects)
+    active = active_branch_uuids(objects, by_uuid)
+    active_objects = select_active_objects(
+        objects,
+        by_uuid,
+        active,
+        args.include_sidechains,
+    )
+    warn_about_branch_gaps(
+        objects,
+        by_uuid,
+        active,
+        args.include_thinking,
+        question_tool_ids,
+    )
+
+    turns = []
+    active_rank = {}
+    for position, obj in enumerate(active_objects):
+        if obj.get("uuid"):
+            active_rank[obj["uuid"]] = position
+        turn = extract_turn(obj, args.include_thinking, question_tool_ids)
         if turn is None:
             continue
-        idx += 1
         label, text = turn
-        turns.append((idx, label, obj.get("timestamp", ""), text, obj.get("uuid")))
+        turns.append((
+            len(turns) + 1,
+            label,
+            obj.get("timestamp", ""),
+            text,
+            record_id(obj),
+            position,
+        ))
 
-    total = idx
-
-    # Resolve --since: a turn uuid (robust cursor that survives rewinds) or,
-    # for convenience, a plain integer turn index. Omitted -> full transcript.
-    rewound = False
+    branch_reset = False
+    rewind_turn = None
     if args.since is None:
         shown = turns
     elif args.since.isdigit():
-        n = int(args.since)
-        shown = [t for t in turns if t[0] > n]
-        if not shown:
-            print(f"(no new turns since {n})")
-    else:
-        # Anchor the cursor on the live branch: the cursor turn itself if it
-        # is still there, else its nearest ancestor that is -- a rewind rolled
-        # the cursor onto an abandoned branch.
-        anchor = None
-        cur = args.since
-        seen = set()
-        while cur and cur in by_uuid and cur not in seen:
-            if active is None or cur in active:
-                anchor = cur
-                break
-            seen.add(cur)
-            cur = by_uuid[cur].get("parentUuid")
-        if anchor is None:
-            print("NOTE: last-seen turn not found on the live branch; "
-                  "showing the full transcript", file=sys.stderr)
+        prior_turn = int(args.since)
+        if prior_turn > len(turns):
+            branch_reset = True
             shown = turns
         else:
-            order = [o.get("uuid") for o in objs
-                     if active is None or o.get("uuid") in active]
-            rank = {u: i for i, u in enumerate(order)}
-            ai = rank.get(anchor, -1)
-            shown = [t for t in turns if rank.get(t[4], -1) > ai]
-            if anchor != args.since:
-                rewound = True
-                before = sum(1 for t in turns if rank.get(t[4], -1) <= ai)
-                print(f"*** REWOUND: the other session was rolled back to turn "
-                      f"{before}. Anything you noted after turn {before} no "
-                      f"longer applies; the turns below are the current "
-                      f"conversation from that point. ***\n")
-            elif not shown:
-                print("(no new turns since the last cursor)")
+            shown = turns[prior_turn:]
+    else:
+        matches = [turn for turn in turns if turn[4] == args.since]
+        if matches:
+            shown = [turn for turn in turns if turn[5] > matches[-1][5]]
+        else:
+            anchor = None
+            current = args.since
+            seen = set()
+            while current and current in by_uuid and current not in seen:
+                if active is None or current in active:
+                    anchor = current
+                    break
+                seen.add(current)
+                current = by_uuid[current].get("parentUuid")
 
-    for t in shown:
-        i, label, ts, text = t[0], t[1], t[2], t[3]
-        ts_short = ts.replace("T", " ").replace("Z", "")[:19] if ts else ""
-        header = f"[{i}] {label}" + (f"  {ts_short}" if ts_short else "")
-        print(header)
-        print(text)
-        print()
+            if anchor is None or anchor not in active_rank:
+                branch_reset = True
+                shown = turns
+            else:
+                anchor_rank = active_rank[anchor]
+                shown = [turn for turn in turns if turn[5] > anchor_rank]
+                if anchor != args.since:
+                    branch_reset = True
+                    rewind_turn = sum(
+                        1 for turn in turns if turn[5] <= anchor_rank
+                    )
 
-    print(f"TURNS_TOTAL={total}")
-    print(f"CURSOR={turns[-1][4] if turns else ''}")
+    if rewind_turn is not None:
+        print(
+            "*** REWOUND: the other session was rolled back to turn "
+            f"{rewind_turn}. Anything you noted after turn {rewind_turn} no "
+            "longer applies; the turns below are the current conversation "
+            "from that point. ***\n"
+        )
+    elif branch_reset and args.since is not None:
+        print("(active branch changed; full active transcript follows)")
+
+    if args.since is not None and not branch_reset and not shown:
+        print("(no new persisted turns on the active branch)")
+    else:
+        for index, label, timestamp, text, _, _ in shown:
+            if timestamp:
+                timestamp = str(timestamp).replace("T", " ").replace("Z", "")[:19]
+            header = f"[{index}] {label}" + (
+                f"  {timestamp}" if timestamp else ""
+            )
+            print(header)
+            print(text)
+            print()
+
+    cursor = turns[-1][4] if turns else ""
+    print(f"BRANCH_RESET={int(branch_reset)}")
+    print(f"TURNS_TOTAL={len(turns)}")
+    print(f"CURSOR={cursor}")
     return 0
 
 
