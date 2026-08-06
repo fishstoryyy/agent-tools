@@ -99,10 +99,19 @@ def _tool_result_text(content):
     return ""
 
 
+def indent_note(note):
+    """Normalize newlines so a multi-line note stays readable under its answer."""
+    normalized = note.replace("\r\n", "\n").replace("\r", "\n")
+    return normalized.replace("\n", "\n  ")
+
+
 def render_question_answers(obj, question_tool_ids):
     """Render a persisted answer to AskUserQuestion, without other results."""
     result = obj.get("toolUseResult")
     if isinstance(result, dict) and isinstance(result.get("answers"), dict):
+        annotations = result.get("annotations")
+        if not isinstance(annotations, dict):
+            annotations = {}
         lines = []
         for question, answer in result["answers"].items():
             question_text = str(question).strip()
@@ -110,8 +119,17 @@ def render_question_answers(obj, question_tool_ids):
                 answer_text = ", ".join(str(value) for value in answer)
             else:
                 answer_text = str(answer).strip()
-            if question_text and answer_text:
-                lines.append(f"{question_text} → {answer_text}")
+            # Free-text the user typed instead of, or alongside, an option:
+            # the answer itself can be a placeholder like "(notes only)".
+            annotation = annotations.get(question)
+            note = ""
+            if isinstance(annotation, dict):
+                note = str(annotation.get("notes") or "").strip()
+            if not question_text or not (answer_text or note):
+                continue
+            lines.append(f"{question_text} → {answer_text}".rstrip())
+            if note:
+                lines.append(f"  notes: {indent_note(note)}")
         if lines:
             return "\n".join(lines)
 
@@ -366,6 +384,28 @@ def warn_about_branch_gaps(
         )
 
 
+def build_turns(active_objects, include_thinking, question_tool_ids):
+    """Return (visible turns, uuid -> position) for the selected records."""
+    turns = []
+    active_rank = {}
+    for position, obj in enumerate(active_objects):
+        if obj.get("uuid"):
+            active_rank[obj["uuid"]] = position
+        turn = extract_turn(obj, include_thinking, question_tool_ids)
+        if turn is None:
+            continue
+        label, text = turn
+        turns.append((
+            len(turns) + 1,
+            label,
+            obj.get("timestamp", ""),
+            text,
+            record_id(obj),
+            position,
+        ))
+    return turns, active_rank
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -412,23 +452,31 @@ def main():
         question_tool_ids,
     )
 
-    turns = []
-    active_rank = {}
-    for position, obj in enumerate(active_objects):
-        if obj.get("uuid"):
-            active_rank[obj["uuid"]] = position
-        turn = extract_turn(obj, args.include_thinking, question_tool_ids)
-        if turn is None:
-            continue
-        label, text = turn
-        turns.append((
-            len(turns) + 1,
-            label,
-            obj.get("timestamp", ""),
-            text,
-            record_id(obj),
-            position,
-        ))
+    turns, active_rank = build_turns(
+        active_objects,
+        args.include_thinking,
+        question_tool_ids,
+    )
+
+    if active is not None and not turns:
+        # A record whose parent is missing from the file traces to a branch
+        # holding no dialogue. Show everything rather than a blank transcript.
+        fallback_objects = select_active_objects(
+            objects,
+            by_uuid,
+            None,
+            args.include_sidechains,
+        )
+        fallback_turns, fallback_rank = build_turns(
+            fallback_objects,
+            args.include_thinking,
+            question_tool_ids,
+        )
+        if fallback_turns:
+            print("WARN: the traced branch holds no dialogue; showing all turns",
+                  file=sys.stderr)
+            active = None
+            turns, active_rank = fallback_turns, fallback_rank
 
     branch_reset = False
     rewind_turn = None

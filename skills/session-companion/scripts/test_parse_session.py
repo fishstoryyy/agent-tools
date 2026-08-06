@@ -126,6 +126,49 @@ class ParseSessionTests(unittest.TestCase):
         self.assertIn("TURNS_TOTAL=4", stdout)
         self.assertTrue(stdout.rstrip().endswith("CURSOR=a2"))
 
+    def test_preserves_free_text_notes_on_an_answer(self):
+        records = [
+            self.message("user", "u1", None, "Scope this."),
+            self.message("assistant", "a1", "u1", "One decision first."),
+            {
+                "type": "user",
+                "uuid": "u2",
+                "parentUuid": "a1",
+                "toolUseResult": {
+                    "answers": {"Which scope?": "(notes only)"},
+                    "annotations": {
+                        "Which scope?": {
+                            "notes": "Neither option fits:\nsolve for the band instead.",
+                            "preview": "ASCII option preview, not user text",
+                        },
+                    },
+                },
+                "message": {"role": "user", "content": []},
+            },
+        ]
+
+        stdout, _ = self.run_parser(records)
+
+        self.assertIn("Which scope? → (notes only)", stdout)
+        self.assertIn("notes: Neither option fits:", stdout)
+        self.assertIn("solve for the band instead.", stdout)
+        self.assertNotIn("ASCII option preview", stdout)
+        self.assertIn("TURNS_TOTAL=3", stdout)
+
+    def test_detached_tail_record_still_shows_the_conversation(self):
+        records = [
+            self.message("user", "u1", None, "Real question"),
+            self.message("assistant", "a1", "u1", "Real answer"),
+            {"type": "system", "uuid": "s1", "parentUuid": "absent", "content": "hook"},
+        ]
+
+        stdout, stderr = self.run_parser(records)
+
+        self.assertIn("Real question", stdout)
+        self.assertIn("Real answer", stdout)
+        self.assertIn("TURNS_TOTAL=2", stdout)
+        self.assertIn("holds no dialogue", stderr)
+
     def test_last_prompt_selects_live_branch_and_rewind_shows_divergence(self):
         records = [
             self.message("user", "u1", None, "Root"),
