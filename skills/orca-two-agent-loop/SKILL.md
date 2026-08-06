@@ -105,10 +105,10 @@ Decide Orca lineage and Git base separately:
    belongs to the user. Who performs those steps is not a user question — the
    engineer does, because the manager never writes in that worktree.
 2. **Provision:** create the Run, create the first Task whose spec carries the
-   goal brief inline and asks the engineer to draft `plan.md`, then start the
-   engineer through the guide's composed `worker-start` path. Nothing needs to
-   exist in the worktree beforehand, so provisioning and the first Dispatch are
-   one step. `worker-start` expresses every lineage and Git-base choice from the
+   goal brief inline, invites brief-clarity questions before drafting, and asks
+   the engineer to draft `plan.md`, then start the engineer through the guide's
+   composed `worker-start` path. Nothing needs to exist in the worktree
+   beforehand, so provisioning and the first Dispatch are one step. `worker-start` expresses every lineage and Git-base choice from the
    section above, but not a custom agent command. Any engineer carrying a model
    or effort argument — including the default — takes the guide's custom-argv
    path instead: create the worktree, create the terminal with that command,
@@ -122,7 +122,11 @@ Decide Orca lineage and Git base separately:
 4. **Review the plan:** the manager reads `plan.md` read-only and invokes
    `adversarial-review` against it. Dispatch accepted findings back as a fresh
    Task and Dispatch; the engineer revises `plan.md` or defends it with
-   evidence. Iterate until the manager accepts the plan.
+   evidence. Iterate until the manager accepts the plan. Before accepting, if
+   the plan rests on a load-bearing premise — one whose falsity invalidates the
+   plan rather than degrading it — that a single runnable check would settle and
+   review has not already settled, dispatch that check first and accept on its
+   result.
 5. **Implement:** dispatch the agreed plan as a fresh Task and Dispatch to the
    same engineer terminal. The engineer implements, validates, and reports
    `worker_done` with evidence and modified paths.
@@ -133,7 +137,8 @@ Decide Orca lineage and Git base separately:
    identify the engineer worktree. The manager approves; the engineer then
    carries out the agreed delivery boundary as a final Task and Dispatch,
    unless the brief names a different owner for that step. Use native Orca
-   status commands: keep the worktree `in-review` while the agreed integration
+   status commands: release the engineer terminal once its final report is
+   accepted, and keep the worktree `in-review` while the agreed integration
    step remains outstanding; mark it `completed` only when the agreed delivery
    boundary has been satisfied.
 
@@ -171,8 +176,13 @@ the agents can settle.
   implementation unless the user explicitly selected the shared current
   worktree for required uncommitted changes. The manager writes nothing in the
   engineer worktree.
+- A Dispatch that reports acceptance has not necessarily delivered. Probe once
+  with a short `terminal wait --for tui-idle`: immediate satisfaction means the
+  prompt never landed, so re-deliver it; a timeout means the worker is busy.
+  Never release or stop a worker on that signal alone.
 - Wait through Orca's mailbox lifecycle; do not poll terminal input. Treat wait
-  timeouts as checkpoints, not automatic worker failure.
+  timeouts as checkpoints, not automatic worker failure — unless the delivery
+  probe above never confirmed the worker started.
 - If a Dispatch fails three times or the engineer terminal dies, report the
   blocker to the user instead of repeatedly retrying.
 - Do not claim fresh-context review, successful skill composition, or runtime
