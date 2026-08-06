@@ -137,8 +137,7 @@ Decide Orca lineage and Git base separately:
    identify the engineer worktree. The manager approves; the engineer then
    carries out the agreed delivery boundary as a final Task and Dispatch,
    unless the brief names a different owner for that step. Use native Orca
-   status commands: release the engineer terminal once its final report is
-   accepted, and keep the worktree `in-review` while the agreed integration
+   status commands: keep the worktree `in-review` while the agreed integration
    step remains outstanding; mark it `completed` only when the agreed delivery
    boundary has been satisfied.
 
@@ -180,6 +179,9 @@ the agents can settle.
   with a short `terminal wait --for tui-idle`: immediate satisfaction means the
   prompt never landed, so re-deliver it; a timeout means the worker is busy.
   Never release or stop a worker on that signal alone.
+- Release the engineer terminal on every exit — delivery, blocked loop, or
+  reported blocker — not only on success. Retain it instead only when the user
+  asks to keep it for debugging.
 - Wait through Orca's mailbox lifecycle; do not poll terminal input. Treat wait
   timeouts as checkpoints, not automatic worker failure — unless the delivery
   probe above never confirmed the worker started.
