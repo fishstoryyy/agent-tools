@@ -25,7 +25,7 @@ with the resolved executable; do not run the placeholder literally.
 
 Favor native Orca commands for every supported worktree, terminal,
 orchestration, messaging, and workspace-status operation. The fetched guides
-override remembered syntax and the limited provider conventions below.
+override remembered syntax and any command names referenced below.
 
 ## Roles and Authority
 
@@ -41,10 +41,10 @@ override remembered syntax and the limited provider conventions below.
   `escalation`, and `worker_done` from its own terminal under the active
   Dispatch contract.
 
-The manager writes nothing in the engineer worktree and reviews read-only from
-the first Dispatch onward. Every plan and code edit belongs to the engineer.
-The interview conversation stays with the manager; only the brief crosses to
-the engineer, so the brief must stand on its own.
+From the first Dispatch onward, the manager treats the engineer's selected
+checkout as read-only. Every plan and code edit belongs to the engineer. The
+interview conversation stays with the manager; only the brief crosses to the
+engineer, so the brief must stand on its own.
 
 ## Resolve the Engineer
 
@@ -56,9 +56,26 @@ it from unrelated configurations. Confirm the resolved spec once:
 
 Proceed unless the user objects.
 
-Use these launch shapes directly rather than spending a `--help` call to
-rediscover them. Verify only when a command fails, and prefer a fetched guide
-that documents the provider differently:
+Launch the fresh engineer through the current orchestration guide's composed
+`worker-start` path. Pass the resolved agent, model, and effort as
+per-invocation launch preferences when the guide supports them; treat model
+identifiers as opaque provider values. Do not construct provider-specific argv
+merely to select a model or effort. Use the guide's low-level custom-argv path
+only when composed start cannot express the resolved engineer, and follow its
+setup, topology, and recovery rules exactly. Read the start receipt and confirm
+that the effective launch preferences match the resolved spec. If Orca did not
+apply the model or effort, never proceed with a different engineer. Recover to
+the custom-argv path without re-engaging the user: stop that Dispatch with
+`worker-stop` first, then relaunch through the guide's replacement mechanism,
+including `--retry-of`, so the round never carries two Dispatches.
+
+Composed launch preferences reach only the agents and models Orca supports, and
+only when the worker server advertises that support. Custom argv remains the
+fallback whenever composed start cannot express the resolved engineer or did not
+apply the requested model or effort. The fetched guides illustrate only the
+Codex shape, so use these directly rather than spending a `--help` call. Verify
+only when a command fails, and prefer a fetched guide that documents a provider
+differently:
 
 - Codex: `codex --model <model> -c model_reasoning_effort="<effort>"` — effort
   is one of `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`.
@@ -67,22 +84,25 @@ that documents the provider differently:
 - OMP: `omp --model <model> --thinking <level>` — thinking is one of `off`,
   `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, `auto`.
 
-The default engineer therefore launches as
-`codex --model gpt-5.6-sol -c model_reasoning_effort="xhigh"`. Because
-`worker-start --agent` cannot carry Codex model or effort arguments, the
-default always takes the custom-argv path below.
-
-Wrap any custom agent command with the native Orca terminal/worktree procedure
-from the fetched guide.
-
 ## Placement and Git Base
 
-Use a separate Orca worktree by default because this workflow requires the
-engineer to edit without touching the manager's checkout. State that concrete
-checkout conflict before creation; it is the justification required by the
-Orca guide.
+Use the current Orca worktree by default. The manager stays read-only from the
+first Dispatch while the engineer edits there. Create a separate worktree only
+when the user explicitly requests one or a concrete checkout or filesystem
+conflict makes sharing unsafe or impossible; state that conflict before
+creation.
 
-Decide Orca lineage and Git base separately:
+Before the first Dispatch in a shared checkout, capture its full baseline:
+HEAD plus the staged, unstaged, and untracked contents. Carry its HEAD and
+changed-path list in every Task. Any required edit that
+overlaps a pre-existing changed path is a concrete sharing conflict; use a
+separate worktree unless the user explicitly accepts mixed ownership. Settle
+known overlap at provisioning from the brief. If overlap surfaces only from the
+plan, use the user escape hatch rather than replacing the persistent engineer
+mid-run. Both review gates and the delivery boundary cover only the engineer's
+delta from the baseline. Never commit, stash, or revert pre-existing work.
+
+For an allowed new worktree, decide Orca lineage and Git base separately:
 
 - If the goal depends on committed work from the manager's branch, use child
   lineage and explicitly base the new branch on the manager branch's committed
@@ -91,15 +111,15 @@ Decide Orca lineage and Git base separately:
   base.
 - If required work exists only as uncommitted manager changes, do not silently
   omit or copy it. Resolve during the interview whether the user will commit it,
-  explicitly permit the engineer to share the current worktree, or exclude that
-  work. Choosing the shared worktree explicitly waives the default checkout
-  isolation for that run.
+  return to the shared current worktree, or exclude that work.
 
-Before taking the custom-argv path into a new worktree, read the repository's
-agent-startup policy with `<ORCA> repo show --repo <repo> --json`; neither
-fetched guide names the field that carries it. That path cannot honor
-`wait-for-setup`, so if the policy requires it and agent-first cannot match the
-resolved model and effort, use the escape hatch. Never race or relax the policy.
+For every new worktree, request setup through composed `worker-start` and let
+Orca enforce the repository's startup policy. Read the returned receipt before
+continuing; never race or relax `wait-for-setup`. If a custom-argv engineer is
+unavoidable, first read the repository's agent-startup policy with
+`<ORCA> repo show --repo <repo> --json`; neither fetched guide names the field
+that carries it. That path cannot honor `wait-for-setup`, so if the repository
+requires it, use the user escape hatch.
 
 ## Workflow
 
@@ -109,22 +129,23 @@ resolved model and effort, use the escape hatch. Never race or relax the policy.
    boundary: whether the work ends at a validated working tree, a commit, a
    pushed branch, an open PR, or a merge. That boundary is outcome scope and
    belongs to the user. Who performs those steps is not a user question — the
-   engineer does, because the manager never writes in that worktree.
-2. **Provision:** create the Run, create the first Task whose spec carries the
-   goal brief inline, invites brief-clarity questions before drafting, and asks
-   the engineer to draft `plan.md`, then start the engineer through the guide's
-   composed `worker-start` path. Nothing needs to exist in the worktree
-   beforehand, so provisioning and the first Dispatch are one step. `worker-start` expresses every lineage and Git-base choice from the
-   section above, but not a custom agent command. Any engineer carrying a model
-   or effort argument — including the default — takes the guide's custom-argv
-   path instead: create the worktree, create the terminal with that command,
-   then attach it with `worker-start --terminal <handle>` so the Dispatch stays
-   composed. Use plain `worker-start --agent <id>` only when no custom argv is
-   needed. The manager remains in its own worktree.
-3. **Plan:** the engineer drafts `plan.md` in its own worktree from the brief —
-   approach, file-level changes, risks, validation strategy, and sequencing —
-   then reports `worker_done`. `plan.md` is a working artifact: keep it out of
-   the deliverable commit and out of the reviewed implementation diff.
+   engineer does, because the manager is read-only in the selected checkout
+   from the first Dispatch onward.
+2. **Provision:** select placement under the policy above, create the Run, and
+   create the first Task whose spec carries the goal brief inline, invites
+   brief-clarity questions before drafting, and asks the engineer to draft
+   `plan.md`. Start the engineer through composed `worker-start`, passing the
+   resolved agent, model, and effort through the guide's per-worker launch
+   preferences. For a new worktree, request setup through the same composed
+   start. Nothing needs to exist in the checkout beforehand, so provisioning
+   and the first Dispatch are one step. Take a low-level custom-argv path only
+   for an engineer configuration the fetched guide cannot express. The manager
+   remains in its existing session and read-only from this Dispatch onward.
+3. **Plan:** the engineer drafts `plan.md` in the selected checkout from the
+   brief — approach, file-level changes, risks, validation strategy, and
+   sequencing — then reports `worker_done`. `plan.md` is a working artifact:
+   keep it out of the deliverable commit and out of the reviewed implementation
+   diff.
 4. **Review the plan:** the manager reads `plan.md` read-only and invokes
    `adversarial-review` against it. Dispatch accepted findings back as a fresh
    Task and Dispatch; the engineer revises `plan.md` or defends it with
@@ -145,15 +166,16 @@ resolved model and effort, use the escape hatch. Never race or relax the policy.
    candidate rather than the pre-integration diff. A non-integrating boundary
    needs no second gate.
 7. **Deliver:** after acceptance, summarize the result and validation and
-   identify the engineer worktree. The manager approves; the engineer then
+   identify the engineer checkout. The manager approves; the engineer then
    carries out the agreed delivery boundary as a final Task and Dispatch,
    unless the brief names a different owner for that step. Finalize only while
    both the target head and the reviewed candidate are unchanged; if either
    moved, rebuild, re-validate, and return through step 6 when content or
    evidence changed. Commit-metadata changes do not count. Use native Orca
-   status commands: keep the worktree `in-review` while the agreed integration
-   step remains outstanding; mark it `completed` only when the agreed delivery
-   boundary has been satisfied.
+   status commands: keep the selected checkout's worktree `in-review` while the
+   agreed integration step remains outstanding; mark it `completed` only when
+   the agreed delivery boundary has been satisfied. The engineer removes
+   `plan.md` from the checkout before delivery completes.
 
 ## Rounds, Context, and Convergence
 
@@ -162,7 +184,10 @@ resolved model and effort, use the escape hatch. Never race or relax the policy.
   provenance boundaries. The plan draft is the Dispatch created by
   `worker-start`, not a review round.
 - Reuse the same engineer terminal throughout. Its model context persists
-  across rounds; a fresh Dispatch does **not** create context isolation.
+  across rounds; a fresh Dispatch does **not** create context isolation. After
+  an accepted `worker_done`, transfer that exact terminal to the next round's
+  Dispatch before acknowledging the Delivery — the manager's review sits
+  inside that window — or account for it under Guardrails.
 - Make every task specification self-contained even though context persists, so
   the contract remains inspectable and recoverable.
 - Allow at most three rounds per review gate. The limit ends repeated opinion
@@ -186,10 +211,9 @@ agents can settle.
 
 ## Guardrails
 
-- Never edit the manager's worktree, another worktree, or `main` as part of
-  implementation unless the user explicitly selected the shared current
-  worktree for required uncommitted changes. The manager writes nothing in the
-  engineer worktree.
+- From the first Dispatch onward, never edit the engineer's selected checkout
+  from the manager session, including when it is the current worktree. Neither
+  agent edits another worktree or `main` as a workaround.
 - `input_accepted` is a send receipt, not proof the engineer took up the prompt.
   Never infer non-delivery from `tui-idle`, a wait timeout, missing terminal
   text, or an absent heartbeat — `tui-idle` reports idle mid-turn. Take uptake
@@ -198,17 +222,21 @@ agents can settle.
   ambiguous after a bounded acknowledgement request, fence the old Dispatch
   before any retry, or report the loop blocked. Never run two Dispatches for
   the same round.
-- Account for the engineer terminal on every exit. On a loop exit after an
-  accepted `worker_done`, succeeded or failed, call `worker-release`; retain it
-  only at the user's request. If release retains the exact manager-created
-  custom-argv terminal solely because it is external or pre-existing, verify
-  that no active Dispatch owns it, then close that terminal explicitly; never
+- Account for the engineer terminal on every exit. After every accepted
+  `worker_done`, reuse it immediately for the next Dispatch, record an explicit
+  `worker-retain` at the user's request, or call `worker-release`; never
+  silently skip cleanup. On a loop exit after a succeeded or failed
+  `worker_done`, release it. For an exceptional externally created
+  terminal, close it only after release proves it was retained solely because
+  it is external or pre-existing and no active Dispatch owns it. Never
   substitute a close for `release_pending` or `release_unknown`, whose receipts
-  govern recovery. On escalation, either resolve it and continue to settlement
-  or, if ending the run, `worker-stop` the Dispatch and follow its receipt —
-  never release an unsettled Dispatch. Use `worker-abandon` only when the
-  receipt leaves the outcome unknown, and report that residual uncertainty
-  rather than calling the loop clean.
+  govern recovery. On any exit with an unsettled Dispatch — including ambiguous
+  uptake, an unresolved escalation, repeated failure, or a dead terminal —
+  `worker-stop` the Dispatch and follow its receipt; never release. Resolve an
+  escalation and continue to settlement whenever possible; stop only when
+  ending the run. Use `worker-abandon` only when the receipt leaves the outcome
+  unknown, and report that residual uncertainty rather than calling the loop
+  clean.
 - Wait through Orca's mailbox lifecycle; do not poll terminal input. Treat wait
   timeouts as checkpoints, not automatic worker failure.
 - If a Dispatch fails three times or the engineer terminal dies, report the
