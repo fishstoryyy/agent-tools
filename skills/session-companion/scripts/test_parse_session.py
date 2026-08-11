@@ -234,6 +234,88 @@ class ParseSessionTests(unittest.TestCase):
         self.assertIn("[subagent] Agent", included)
         self.assertIn("TURNS_TOTAL=5", included)
 
+    def test_claude_away_summaries_are_optional_context(self):
+        records = [
+            self.message("user", "u1", None, "Start the analysis."),
+            self.message("assistant", "a1", "u1", "Working on it."),
+            {
+                "type": "system",
+                "subtype": "away_summary",
+                "uuid": "summary-1",
+                "parentUuid": "a1",
+                "content": "The analysis finished while you were away.",
+            },
+            self.message("user", "u2", "summary-1", "Show me the result."),
+            self.message("assistant", "a2", "u2", "Here it is."),
+        ]
+
+        default, _ = self.run_parser(records)
+        self.assertNotIn("[Away summary]", default)
+        self.assertNotIn("The analysis finished while you were away.", default)
+        self.assertIn("TURNS_TOTAL=4", default)
+
+        stdout, _ = self.run_parser(records, "--include-context")
+
+        self.assertIn("[3] Context", stdout)
+        self.assertIn("[Away summary]", stdout)
+        self.assertIn("The analysis finished while you were away.", stdout)
+        self.assertIn("TURNS_TOTAL=5", stdout)
+
+    def test_include_sidechains_surfaces_inline_claude_agent_results(self):
+        records = [
+            self.message("user", "u1", None, "Investigate this."),
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "parentUuid": "u1",
+                "message": {
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": "I will delegate the search."},
+                        {
+                            "type": "tool_use",
+                            "id": "agent-1",
+                            "name": "Agent",
+                            "input": {"prompt": "Find the cause."},
+                        },
+                    ],
+                },
+            },
+            {
+                "type": "user",
+                "uuid": "result-1",
+                "parentUuid": "a1",
+                "toolUseResult": {
+                    "agentId": "agent-abc",
+                    "status": "completed",
+                    "content": [{
+                        "type": "text",
+                        "text": "The subagent found the root cause.",
+                    }],
+                },
+                "message": {
+                    "role": "user",
+                    "content": [{
+                        "type": "tool_result",
+                        "tool_use_id": "agent-1",
+                        "content": "Agent completed successfully.",
+                    }],
+                },
+            },
+            self.message("assistant", "a2", "result-1", "I agree with it."),
+        ]
+
+        default, _ = self.run_parser(records)
+        self.assertNotIn("The subagent found the root cause.", default)
+        self.assertNotIn("Agent completed successfully.", default)
+        self.assertIn("TURNS_TOTAL=3", default)
+
+        included, _ = self.run_parser(records, "--include-sidechains")
+        self.assertIn("[3] [subagent] Agent", included)
+        self.assertIn("The subagent found the root cause.", included)
+        self.assertNotIn("Agent completed successfully.", included)
+        self.assertIn("TURNS_TOTAL=4", included)
+
     def test_thinking_is_opt_in(self):
         records = [
             self.message("user", "u1", None, "Think"),
@@ -427,12 +509,22 @@ class ParseSessionTests(unittest.TestCase):
         self.assertNotIn("Abandoned prompt", full)
         self.assertNotIn("Abandoned reply", full)
         self.assertIn("[3] Context", full)
-        self.assertIn("[Branch summary]", full)
-        self.assertIn("[Compaction summary]", full)
+        self.assertNotIn("[Branch summary]", full)
+        self.assertNotIn("[Compaction summary]", full)
         self.assertIn("[Context cleared]", full)
-        self.assertIn("TURNS_TOTAL=7", full)
+        self.assertIn("TURNS_TOTAL=5", full)
 
-        refreshed, _ = self.run_parser(records, "--since", "a-old")
+        included, _ = self.run_parser(records, "--include-context")
+        self.assertNotIn("Abandoned prompt", included)
+        self.assertNotIn("Abandoned reply", included)
+        self.assertIn("[3] Context", included)
+        self.assertIn("[Branch summary]", included)
+        self.assertIn("[Compaction summary]", included)
+        self.assertIn("[Context cleared]", included)
+        self.assertIn("TURNS_TOTAL=7", included)
+
+        refreshed, _ = self.run_parser(
+            records, "--include-context", "--since", "a-old")
         self.assertIn("*** REWOUND", refreshed)
         self.assertIn("rolled back to turn 2", refreshed)
         self.assertIn("[Branch summary]", refreshed)

@@ -15,18 +15,19 @@ You do this by reconstructing the other conversation from its session `.jsonl` f
 
 ## The parser
 
-A Python script auto-detects Claude Code or OMP and reconstructs just the human-readable dialogue. It drops ordinary tool calls and results, thinking by default, slash-command scaffolding, and other meta while preserving Claude `AskUserQuestion` / OMP `ask` prompts and recorded answers plus an `[Image attached]` marker when a turn included an image. For OMP, it also preserves branch summaries, compaction summaries, and reset boundaries as `Context` turns:
+A Python script auto-detects Claude Code or OMP and reconstructs just the human-readable dialogue. It drops ordinary tool calls and results, thinking by default, slash-command scaffolding, and other meta while preserving Claude `AskUserQuestion` / OMP `ask` prompts and recorded answers plus an `[Image attached]` marker when a turn included an image. For OMP, it also preserves reset boundaries as `Context` turns. Generated context summaries are available on request:
 
 ```
-python3 <this-skill-dir>/scripts/parse_session.py SESSION.jsonl [--since CURSOR] [--include-thinking] [--include-sidechains]
+python3 <this-skill-dir>/scripts/parse_session.py SESSION.jsonl [--since CURSOR] [--include-thinking] [--include-context] [--include-sidechains]
 ```
 
-- No flags → full transcript in chronological order. Turns are numbered and labelled `You` (the user) / `Agent` (the other agent) with timestamps. OMP user messages explicitly marked with `attribution: "agent"` and preserved context records are labelled `Context`.
+- No flags → full transcript in chronological order. Turns are numbered and labelled `You` (the user) / `Agent` (the other agent) with timestamps. OMP user messages explicitly marked with `attribution: "agent"` and reset boundaries are labelled `Context`.
 - `--since CURSOR` → prints only the active turns after CURSOR. Use this on every refresh. `--cursor CURSOR` is an alias.
 - The final three state lines are `BRANCH_RESET=0|1`, `TURNS_TOTAL=<int>` (turn count, for display), and `CURSOR=<id>`. Remember the **CURSOR** and pass it as `--since` next refresh — a stable record id survives rewinds where a turn number would not.
 - **Rewinds are handled for you.** The parser reconstructs only the live branch, so rewound/abandoned turns never appear. If a refresh prints `*** REWOUND ... ***` or `BRANCH_RESET=1`, discard anything you noted after the divergence and treat the printed turns as the current conversation. When ancestry is recoverable, the parser prints only the current turns after the divergence; otherwise it prints the full active transcript.
 - `--include-thinking` → includes the other agent's reasoning **if the session stored it**. Claude setups often persist only a signature, while OMP sessions may store the reasoning text; if none is present, infer the agent's rationale from its visible text instead of promising hidden reasoning.
-- `--include-sidechains` → includes embedded subagent turns attached to the active branch. It does not discover subagents stored in separate session files, including OMP sidecar files; use it only if the user asks about what an embedded subagent did.
+- `--include-context` → includes generated context summaries: Claude `away_summary` recaps and OMP branch and compaction summaries.
+- `--include-sidechains` → includes embedded subagent turns attached to the active branch and inline Claude `Agent` / `Task` results. It does not discover subagents stored in separate session files, including OMP sidecar files; use it only if the user asks about what an embedded subagent did.
 
 The parser tolerates a truncated final line, so it is safe to run against a live, growing file.
 

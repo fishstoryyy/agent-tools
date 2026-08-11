@@ -3,19 +3,21 @@
 
 Ordinary tool chatter, meta records, abandoned rewind branches, and thinking
 (by default) are omitted. Interactive questions, recorded answers, meaningful
-OMP context boundaries, text, and image placeholders are preserved. The input
-format is detected automatically.
+OMP reset boundaries, text, and image placeholders are preserved. Generated
+context summaries are optional. The input format is detected automatically.
 
 Usage:
     parse_session.py SESSION.jsonl [--since CURSOR] [--include-thinking]
-                                   [--include-sidechains]
+                                   [--include-context] [--include-sidechains]
 
     --since CURSOR       Show active turns after the prior CURSOR. Stable record
                          IDs detect rewinds; a plain turn number also works.
     --cursor CURSOR      Alias for --since.
     --include-thinking   Include persisted assistant thinking blocks.
-    --include-sidechains Include embedded subagent turns attached to the active
-                         branch. Separate subagent files are not loaded.
+    --include-context    Include generated Claude and OMP context summaries.
+    --include-sidechains Include embedded subagent turns and inline Claude
+                         Agent/Task results. Separate subagent files are not
+                         loaded.
 
 The final three stdout lines are always:
     BRANCH_RESET=0|1     whether prior branch state must be discarded
@@ -40,8 +42,9 @@ _DROP_WRAPPERS = re.compile(
 _UNWRAP = re.compile(r"</?(command-args|command-contents)>")
 _STRAY_TAGS = re.compile(r"</?(command-[a-z-]+|local-command-[a-z-]+)>")
 _CLAUDE_QUESTION_TOOL_NAMES = {"AskUserQuestion"}
+_CLAUDE_SUBAGENT_TOOL_NAMES = {"Agent", "Task"}
 _OMP_QUESTION_TOOL_NAMES = {"ask"}
-_OMP_CONTEXT_TYPES = {"branch_summary", "compaction", "reset_boundary"}
+_OMP_SUMMARY_TYPES = {"branch_summary", "compaction"}
 
 
 def clean_user_text(text):
@@ -154,6 +157,27 @@ def render_claude_question_answers(obj, question_tool_ids):
     return "\n".join(answers)
 
 
+def render_claude_subagent_result(obj, subagent_tool_ids):
+    """Render an inline Claude Agent/Task result without other tool output."""
+    content = (obj.get("message") or {}).get("content")
+    if not isinstance(content, list):
+        return ""
+    has_subagent_result = any(
+        isinstance(block, dict)
+        and block.get("type") == "tool_result"
+        and not block.get("is_error")
+        and block.get("tool_use_id") in subagent_tool_ids
+        for block in content
+    )
+    if not has_subagent_result:
+        return ""
+
+    result = obj.get("toolUseResult")
+    if not isinstance(result, dict):
+        return ""
+    return _tool_result_text(result.get("content")).strip()
+
+
 def render_content(
         content, *, include_thinking=False, include_questions=False,
         clean_user=False):
@@ -191,8 +215,19 @@ def render_content(
     return "\n".join(part for part in parts if part.strip()).strip()
 
 
-def extract_claude_turn(obj, include_thinking, question_tool_ids):
+def extract_claude_turn(
+        obj, include_thinking, question_tool_ids, include_context,
+        include_sidechains, subagent_tool_ids):
     """Return a readable Claude Code turn, or None."""
+    if (
+        include_context
+        and obj.get("type") == "system"
+        and obj.get("subtype") == "away_summary"
+    ):
+        summary = render_content(obj.get("content"))
+        if summary:
+            return "Context", f"[Away summary]\n{summary}"
+
     if obj.get("type") not in ("user", "assistant") or obj.get("isMeta"):
         return None
     message = obj.get("message") or {}
@@ -203,7 +238,18 @@ def extract_claude_turn(obj, include_thinking, question_tool_ids):
         text = render_content(content, clean_user=True)
         answers = render_claude_question_answers(obj, question_tool_ids)
         text = "\n".join(part for part in (text, answers) if part).strip()
-        label = "You"
+        subagent_result = ""
+        if include_sidechains:
+            subagent_result = render_claude_subagent_result(
+                obj, subagent_tool_ids)
+        if subagent_result and not text:
+            text = subagent_result
+            label = "[subagent] Agent"
+        else:
+            text = "\n".join(
+                part for part in (text, subagent_result) if part
+            ).strip()
+            label = "You"
     elif role == "assistant":
         text = render_content(
             content,
@@ -314,10 +360,12 @@ def render_omp_question_answers(message, question_tool_ids):
     return _tool_result_text(message.get("content")).strip()
 
 
-def extract_omp_turn(obj, include_thinking, question_tool_ids):
+def extract_omp_turn(obj, include_thinking, question_tool_ids, include_context):
     """Return a readable OMP turn or context record, or None."""
     entry_type = obj.get("type")
-    if entry_type in _OMP_CONTEXT_TYPES:
+    if entry_type in _OMP_SUMMARY_TYPES:
+        if not include_context:
+            return None
         if entry_type == "branch_summary":
             summary = str(obj.get("summary") or "").strip()
             text = "[Branch summary]" + (f"\n{summary}" if summary else "")
@@ -327,9 +375,9 @@ def extract_omp_turn(obj, include_thinking, question_tool_ids):
             warning = str(obj.get("warning") or "").strip()
             if warning:
                 text += f"\n[warning] {warning}"
-        else:
-            text = "[Context cleared]"
         return "Context", text
+    if entry_type == "reset_boundary":
+        return "Context", "[Context cleared]"
 
     if entry_type != "message":
         return None
@@ -358,11 +406,22 @@ def extract_omp_turn(obj, include_thinking, question_tool_ids):
     return label, text
 
 
-def extract_turn(obj, session_format, include_thinking, question_tool_ids):
+def extract_turn(
+        obj, session_format, include_thinking, question_tool_ids,
+        include_context=False, include_sidechains=False,
+        subagent_tool_ids=None):
     """Return a readable turn for the detected session format, or None."""
     if session_format == "claude":
-        return extract_claude_turn(obj, include_thinking, question_tool_ids)
-    return extract_omp_turn(obj, include_thinking, question_tool_ids)
+        return extract_claude_turn(
+            obj,
+            include_thinking,
+            question_tool_ids,
+            include_context,
+            include_sidechains,
+            subagent_tool_ids or set(),
+        )
+    return extract_omp_turn(
+        obj, include_thinking, question_tool_ids, include_context)
 
 
 def load_objects(session_path):
@@ -439,6 +498,27 @@ def collect_question_tool_ids(objects, session_format):
                     and block.get("name") in _OMP_QUESTION_TOOL_NAMES
                 )
             if is_question:
+                ids.add(block["id"])
+    return ids
+
+
+def collect_claude_subagent_tool_ids(objects, session_format):
+    """Collect Claude Agent/Task IDs whose inline results may be requested."""
+    if session_format != "claude":
+        return set()
+
+    ids = set()
+    for obj in objects:
+        content = (obj.get("message") or {}).get("content")
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if (
+                isinstance(block, dict)
+                and block.get("type") == "tool_use"
+                and block.get("name") in _CLAUDE_SUBAGENT_TOOL_NAMES
+                and block.get("id")
+            ):
                 ids.add(block["id"])
     return ids
 
@@ -543,7 +623,8 @@ def record_id(obj, session_format):
 
 def warn_about_branch_gaps(
         objects, by_id, active, session_format, include_thinking,
-        question_tool_ids):
+        question_tool_ids, include_context, include_sidechains,
+        subagent_tool_ids):
     """Warn when branch tracing may hide context for non-rewind reasons."""
     if active is None:
         print("WARN: could not trace the active branch; showing all turns",
@@ -573,7 +654,14 @@ def warn_about_branch_gaps(
         and root_of(node_id(obj, session_format), by_id, session_format)
         != live_root
         and extract_turn(
-            obj, session_format, include_thinking, question_tool_ids)
+            obj,
+            session_format,
+            include_thinking,
+            question_tool_ids,
+            include_context,
+            include_sidechains,
+            subagent_tool_ids,
+        )
     )
     if other_turns:
         print(
@@ -584,7 +672,8 @@ def warn_about_branch_gaps(
 
 
 def build_turns(
-        active_objects, session_format, include_thinking, question_tool_ids):
+        active_objects, session_format, include_thinking, question_tool_ids,
+        include_context, include_sidechains, subagent_tool_ids):
     """Return (visible turns, node ID -> position) for selected records."""
     turns = []
     active_rank = {}
@@ -593,7 +682,14 @@ def build_turns(
         if current_id:
             active_rank[current_id] = position
         turn = extract_turn(
-            obj, session_format, include_thinking, question_tool_ids)
+            obj,
+            session_format,
+            include_thinking,
+            question_tool_ids,
+            include_context,
+            include_sidechains,
+            subagent_tool_ids,
+        )
         if turn is None:
             continue
         label, text = turn
@@ -624,9 +720,14 @@ def parse_args():
         help="Include persisted assistant thinking blocks",
     )
     parser.add_argument(
+        "--include-context",
+        action="store_true",
+        help="Include generated Claude and OMP context summaries",
+    )
+    parser.add_argument(
         "--include-sidechains",
         action="store_true",
-        help="Include embedded subagent turns attached to the active branch",
+        help="Include embedded subagent turns and inline Claude Agent/Task results",
     )
     return parser.parse_args()
 
@@ -652,6 +753,8 @@ def main():
         if node_id(obj, session_format)
     }
     question_tool_ids = collect_question_tool_ids(objects, session_format)
+    subagent_tool_ids = collect_claude_subagent_tool_ids(
+        objects, session_format)
     active = active_branch_ids(objects, by_id, session_format)
     active_objects = select_active_objects(
         objects,
@@ -667,6 +770,9 @@ def main():
         session_format,
         args.include_thinking,
         question_tool_ids,
+        args.include_context,
+        args.include_sidechains,
+        subagent_tool_ids,
     )
 
     turns, active_rank = build_turns(
@@ -674,6 +780,9 @@ def main():
         session_format,
         args.include_thinking,
         question_tool_ids,
+        args.include_context,
+        args.include_sidechains,
+        subagent_tool_ids,
     )
 
     if active is not None and not turns:
@@ -691,6 +800,9 @@ def main():
             session_format,
             args.include_thinking,
             question_tool_ids,
+            args.include_context,
+            args.include_sidechains,
+            subagent_tool_ids,
         )
         if fallback_turns:
             print("WARN: the traced branch holds no dialogue; showing all turns",
