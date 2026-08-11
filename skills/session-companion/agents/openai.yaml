@@ -1,7 +1,7 @@
 interface:
   display_name: "Session Companion"
-  short_description: "Coach for a separate live Claude Code session"
-  default_prompt: "Use $session-companion to read my other Claude Code session and help me understand and steer it."
+  short_description: "Coach for a separate live Claude Code or OMP session"
+  default_prompt: "Use $session-companion to read my other Claude Code or OMP session and help me understand and steer it."
 
 policy:
   allow_implicit_invocation: true

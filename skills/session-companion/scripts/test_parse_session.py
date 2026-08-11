@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""End-to-end tests for the session-companion Claude Code parser."""
+"""End-to-end tests for the session-companion Claude Code and OMP parser."""
 
 import json
 import os
@@ -14,7 +14,7 @@ PARSER = Path(__file__).with_name("parse_session.py")
 
 
 class ParseSessionTests(unittest.TestCase):
-    def run_parser(self, records, *args, truncated=False):
+    def run_parser(self, records, *args, truncated=False, expected_code=0):
         handle = tempfile.NamedTemporaryFile(
             mode="w",
             suffix=".jsonl",
@@ -35,7 +35,7 @@ class ParseSessionTests(unittest.TestCase):
             )
         finally:
             os.unlink(handle.name)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.returncode, expected_code, result.stderr)
         return result.stdout, result.stderr
 
     def test_preserves_questions_answers_and_image_markers(self):
@@ -234,6 +234,88 @@ class ParseSessionTests(unittest.TestCase):
         self.assertIn("[subagent] Agent", included)
         self.assertIn("TURNS_TOTAL=5", included)
 
+    def test_claude_away_summaries_are_optional_context(self):
+        records = [
+            self.message("user", "u1", None, "Start the analysis."),
+            self.message("assistant", "a1", "u1", "Working on it."),
+            {
+                "type": "system",
+                "subtype": "away_summary",
+                "uuid": "summary-1",
+                "parentUuid": "a1",
+                "content": "The analysis finished while you were away.",
+            },
+            self.message("user", "u2", "summary-1", "Show me the result."),
+            self.message("assistant", "a2", "u2", "Here it is."),
+        ]
+
+        default, _ = self.run_parser(records)
+        self.assertNotIn("[Away summary]", default)
+        self.assertNotIn("The analysis finished while you were away.", default)
+        self.assertIn("TURNS_TOTAL=4", default)
+
+        stdout, _ = self.run_parser(records, "--include-context")
+
+        self.assertIn("[3] Context", stdout)
+        self.assertIn("[Away summary]", stdout)
+        self.assertIn("The analysis finished while you were away.", stdout)
+        self.assertIn("TURNS_TOTAL=5", stdout)
+
+    def test_include_sidechains_surfaces_inline_claude_agent_results(self):
+        records = [
+            self.message("user", "u1", None, "Investigate this."),
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "parentUuid": "u1",
+                "message": {
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": "I will delegate the search."},
+                        {
+                            "type": "tool_use",
+                            "id": "agent-1",
+                            "name": "Agent",
+                            "input": {"prompt": "Find the cause."},
+                        },
+                    ],
+                },
+            },
+            {
+                "type": "user",
+                "uuid": "result-1",
+                "parentUuid": "a1",
+                "toolUseResult": {
+                    "agentId": "agent-abc",
+                    "status": "completed",
+                    "content": [{
+                        "type": "text",
+                        "text": "The subagent found the root cause.",
+                    }],
+                },
+                "message": {
+                    "role": "user",
+                    "content": [{
+                        "type": "tool_result",
+                        "tool_use_id": "agent-1",
+                        "content": "Agent completed successfully.",
+                    }],
+                },
+            },
+            self.message("assistant", "a2", "result-1", "I agree with it."),
+        ]
+
+        default, _ = self.run_parser(records)
+        self.assertNotIn("The subagent found the root cause.", default)
+        self.assertNotIn("Agent completed successfully.", default)
+        self.assertIn("TURNS_TOTAL=3", default)
+
+        included, _ = self.run_parser(records, "--include-sidechains")
+        self.assertIn("[3] [subagent] Agent", included)
+        self.assertIn("The subagent found the root cause.", included)
+        self.assertNotIn("Agent completed successfully.", included)
+        self.assertIn("TURNS_TOTAL=4", included)
+
     def test_thinking_is_opt_in(self):
         records = [
             self.message("user", "u1", None, "Think"),
@@ -269,6 +351,216 @@ class ParseSessionTests(unittest.TestCase):
         self.assertIn("Live root", stdout)
         self.assertIn("2 turn(s) from a separate thread", stderr)
 
+    def test_omp_dialogue_images_thinking_and_hidden_entries(self):
+        records = self.omp_header() + [
+            {
+                "type": "session_init",
+                "id": "init",
+                "parentId": None,
+                "timestamp": "2026-08-11T10:00:00Z",
+                "task": "Duplicated by the next user message.",
+            },
+            self.omp_message(
+                "user",
+                "u1",
+                "init",
+                [
+                    {"type": "text", "text": "Please inspect this."},
+                    {"type": "image", "data": "private-image"},
+                ],
+            ),
+            self.omp_message(
+                "assistant",
+                "a1",
+                "u1",
+                [
+                    {"type": "thinking", "thinking": "Private rationale"},
+                    {"type": "text", "text": "Inspection complete."},
+                    {
+                        "type": "toolCall",
+                        "id": "read-1",
+                        "name": "read",
+                        "arguments": {"path": "/secret/tool-output"},
+                    },
+                ],
+            ),
+            {
+                "type": "custom_message",
+                "id": "custom-1",
+                "parentId": "a1",
+                "timestamp": "2026-08-11T10:00:03Z",
+                "customType": "irc:incoming",
+                "display": True,
+                "content": "Do not include this custom message.",
+            },
+        ]
+
+        stdout, _ = self.run_parser(records, truncated=True)
+        self.assertIn("[Image attached]", stdout)
+        self.assertIn("Inspection complete.", stdout)
+        self.assertNotIn("Private rationale", stdout)
+        self.assertNotIn("/secret/tool-output", stdout)
+        self.assertNotIn("custom message", stdout)
+        self.assertNotIn("Duplicated by the next user message", stdout)
+        self.assertIn("TURNS_TOTAL=2", stdout)
+        self.assertTrue(stdout.rstrip().endswith("CURSOR=a1"))
+
+        with_thinking, _ = self.run_parser(records, "--include-thinking")
+        self.assertIn("[thinking] Private rationale", with_thinking)
+        self.assertIn("TURNS_TOTAL=2", with_thinking)
+
+    def test_omp_preserves_rich_ask_questions_and_answers(self):
+        records = self.omp_header() + [
+            self.omp_message("user", "u1", None, "Help me choose."),
+            self.omp_message(
+                "assistant",
+                "q1",
+                "u1",
+                [{
+                    "type": "toolCall",
+                    "id": "ask-1",
+                    "name": "ask",
+                    "arguments": {
+                        "questions": [{
+                            "id": "scope",
+                            "header": "Scope",
+                            "question": "Which path?",
+                            "options": [
+                                {
+                                    "label": "Reusable",
+                                    "description": "Build for repeated use.",
+                                },
+                                {
+                                    "label": "One-off",
+                                    "description": "Optimize for speed.",
+                                },
+                            ],
+                            "multi": True,
+                            "recommended": 0,
+                        }],
+                    },
+                }],
+            ),
+            self.omp_message(
+                "toolResult",
+                "r1",
+                "q1",
+                [{"type": "text", "text": "raw fallback answer"}],
+                toolName="ask",
+                toolCallId="ask-1",
+                isError=False,
+                details={
+                    "results": [{
+                        "id": "scope",
+                        "question": "Which path?",
+                        "selectedOptions": ["Reusable"],
+                        "customInput": "with a fallback",
+                        "note": "Keep the interface stable.\nAvoid migration work.",
+                    }],
+                },
+            ),
+            self.omp_message("assistant", "a2", "r1", "Proceeding."),
+        ]
+
+        stdout, _ = self.run_parser(records)
+        self.assertIn("Question — Scope", stdout)
+        self.assertIn("1. Reusable (Recommended) — Build for repeated use.", stdout)
+        self.assertIn("(Multiple selections allowed.)", stdout)
+        self.assertIn("Which path? → Reusable, with a fallback", stdout)
+        self.assertIn("notes: Keep the interface stable.", stdout)
+        self.assertIn("Avoid migration work.", stdout)
+        self.assertNotIn("raw fallback answer", stdout)
+        self.assertIn("TURNS_TOTAL=4", stdout)
+
+    def test_omp_context_records_and_rewind_follow_the_live_branch(self):
+        records = self.omp_header() + [
+            self.omp_message("user", "u1", None, "Root"),
+            self.omp_message("assistant", "a1", "u1", "Shared"),
+            self.omp_message("user", "u-old", "a1", "Abandoned prompt"),
+            self.omp_message("assistant", "a-old", "u-old", "Abandoned reply"),
+            {
+                "type": "branch_summary",
+                "id": "summary-1",
+                "parentId": "a1",
+                "timestamp": "2026-08-11T10:00:04Z",
+                "fromId": "a-old",
+                "summary": "Useful context retained from the old branch.",
+            },
+            {
+                "type": "compaction",
+                "id": "compact-1",
+                "parentId": "summary-1",
+                "timestamp": "2026-08-11T10:00:05Z",
+                "summary": "The context the agent retained after compaction.",
+                "firstKeptEntryId": "summary-1",
+                "tokensBefore": 1000,
+            },
+            {
+                "type": "reset_boundary",
+                "id": "reset-1",
+                "parentId": "compact-1",
+                "timestamp": "2026-08-11T10:00:06Z",
+            },
+            self.omp_message("user", "u-live", "reset-1", "Current prompt"),
+            self.omp_message("assistant", "a-live", "u-live", "Current reply"),
+        ]
+
+        full, _ = self.run_parser(records)
+        self.assertNotIn("Abandoned prompt", full)
+        self.assertNotIn("Abandoned reply", full)
+        self.assertIn("[3] Context", full)
+        self.assertNotIn("[Branch summary]", full)
+        self.assertNotIn("[Compaction summary]", full)
+        self.assertIn("[Context cleared]", full)
+        self.assertIn("TURNS_TOTAL=5", full)
+
+        included, _ = self.run_parser(records, "--include-context")
+        self.assertNotIn("Abandoned prompt", included)
+        self.assertNotIn("Abandoned reply", included)
+        self.assertIn("[3] Context", included)
+        self.assertIn("[Branch summary]", included)
+        self.assertIn("[Compaction summary]", included)
+        self.assertIn("[Context cleared]", included)
+        self.assertIn("TURNS_TOTAL=7", included)
+
+        refreshed, _ = self.run_parser(
+            records, "--include-context", "--since", "a-old")
+        self.assertIn("*** REWOUND", refreshed)
+        self.assertIn("rolled back to turn 2", refreshed)
+        self.assertIn("[Branch summary]", refreshed)
+        self.assertIn("Current reply", refreshed)
+        self.assertNotIn("Root\n", refreshed)
+        self.assertIn("BRANCH_RESET=1", refreshed)
+
+    def test_omp_agent_attribution_and_numeric_stable_cursor(self):
+        records = self.omp_header() + [
+            self.omp_message(
+                "user",
+                "12345678",
+                None,
+                "Task supplied by a parent agent.",
+                attribution="agent",
+            ),
+            self.omp_message("assistant", "a1", "12345678", "Task complete."),
+        ]
+
+        full, _ = self.run_parser(records)
+        self.assertIn("[1] Context", full)
+        self.assertNotIn("[1] You", full)
+
+        refreshed, _ = self.run_parser(records, "--since", "12345678")
+        self.assertIn("[2] Agent", refreshed)
+        self.assertNotIn("Task supplied by a parent agent.", refreshed)
+        self.assertIn("BRANCH_RESET=0", refreshed)
+
+    def test_rejects_an_unsupported_jsonl_format(self):
+        stdout, stderr = self.run_parser(
+            [{"type": "unrelated", "value": "not a session"}],
+            expected_code=2,
+        )
+        self.assertEqual(stdout, "")
+        self.assertIn("unsupported session format", stderr)
+
     @staticmethod
     def message(role, uuid, parent_uuid, text, sidechain=False):
         return {
@@ -277,6 +569,31 @@ class ParseSessionTests(unittest.TestCase):
             "parentUuid": parent_uuid,
             "isSidechain": sidechain,
             "message": {"role": role, "content": text},
+        }
+
+    @staticmethod
+    def omp_header():
+        return [{
+            "type": "session",
+            "version": 3,
+            "id": "019fee76-4107-7000-9b27-b4294caae33b",
+            "timestamp": "2026-08-11T10:00:00Z",
+            "cwd": "/tmp/example",
+        }]
+
+    @staticmethod
+    def omp_message(role, entry_id, parent_id, content, **message_fields):
+        return {
+            "type": "message",
+            "id": entry_id,
+            "parentId": parent_id,
+            "timestamp": "2026-08-11T10:00:01Z",
+            "message": {
+                "role": role,
+                "content": content,
+                "timestamp": 1786442401000,
+                **message_fields,
+            },
         }
 
 
