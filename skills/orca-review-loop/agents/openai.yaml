@@ -1,0 +1,7 @@
+interface:
+  display_name: "Orca Review Loop"
+  short_description: "Converge completed work through Orca reviewers"
+  default_prompt: "Use $orca-review-loop to review my completed work with two OMP reviewers until material findings are resolved."
+
+policy:
+  allow_implicit_invocation: false
