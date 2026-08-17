@@ -1,0 +1,7 @@
+interface:
+  display_name: "Teach Me"
+  short_description: "Evidence-grounded teaching for real understanding"
+  default_prompt: "Use $teach-me to teach me this topic from evidence, in plain terms, with the implications explained."
+
+policy:
+  allow_implicit_invocation: false

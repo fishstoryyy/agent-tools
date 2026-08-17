@@ -1,0 +1,7 @@
+interface:
+  display_name: "Explain Like Rookie"
+  short_description: "Verified explanations for complete beginners"
+  default_prompt: "Use $explain-like-rookie to explain this topic in verified, rookie-friendly terms."
+
+policy:
+  allow_implicit_invocation: false
