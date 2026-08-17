@@ -1,7 +1,7 @@
 interface:
   display_name: "Grill Me Light"
-  short_description: "Bounded plan grilling with clear alignment"
-  default_prompt: "Use $grill-me-light to stress-test my plan without asking more than six questions unless it is truly worth it."
+  short_description: "Ten-question intent and acceptance grilling"
+  default_prompt: "Use $grill-me-light to align intent and define evidence-backed acceptance criteria before taking action."
 
 policy:
   allow_implicit_invocation: false
