@@ -24,6 +24,9 @@ agent-tools/
     create-session-handoff/
       SKILL.md
       agents/openai.yaml
+    explain-like-rookie/
+      SKILL.md
+      agents/openai.yaml
     grill-me-companion/
       SKILL.md
       agents/openai.yaml
@@ -45,6 +48,9 @@ agent-tools/
     session-companion/
       SKILL.md
       agents/openai.yaml
+    teach-me/
+      SKILL.md
+      agents/openai.yaml
   tools/
   templates/
   docs/
@@ -60,6 +66,7 @@ agent-tools/
 | [`build-context-to-do-something`](skills/build-context-to-do-something/SKILL.md) | Minimum-sufficient context prompts for capable fresh agents performing user-specified tasks. |
 | [`context-handoff`](skills/context-handoff/SKILL.md) | Tight, self-contained prompts for handing work to a fresh agent or session. |
 | [`create-session-handoff`](skills/create-session-handoff/SKILL.md) | Durable workspace handoffs for continuing active work in a fresh session. |
+| [`explain-like-rookie`](skills/explain-like-rookie/SKILL.md) | Source-verified, rookie-friendly explanations that pair claims with their practical significance and use concrete examples or a TL;DR when helpful. |
 | [`grill-me-companion`](skills/grill-me-companion/SKILL.md) | Deprecated — superseded by [`session-companion`](skills/session-companion/SKILL.md). Read-only coaching for understanding and steering a separate Claude Code or OMP session. |
 | [`grill-the-goal`](skills/grill-the-goal/SKILL.md) | Goal-focused interviewing that produces decision-ready briefs by clarifying relevant context, actors, sources, outcomes, success evidence, tradeoffs, constraints, and unknowns without entering implementation planning. |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Bounded plan grilling with a six-question default cap, recommendations, alignment brief, and handoff support. |
@@ -67,6 +74,7 @@ agent-tools/
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
 | [`session-companion`](skills/session-companion/SKILL.md) | Read-only live coach for a separate Claude Code or OMP session: reconstructs the other conversation, orients you on each refresh, and helps you understand, challenge, and steer it without ever writing to the other session. |
+| [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
 
 ## Install
 
@@ -78,6 +86,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill budget-grill-me
 npx skills@latest add fishstoryyy/agent-tools --skill build-context-to-do-something
 npx skills@latest add fishstoryyy/agent-tools --skill context-handoff
 npx skills@latest add fishstoryyy/agent-tools --skill create-session-handoff
+npx skills@latest add fishstoryyy/agent-tools --skill explain-like-rookie
 # Deprecated — superseded by session-companion
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-companion
 npx skills@latest add fishstoryyy/agent-tools --skill grill-the-goal
@@ -86,6 +95,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill orca-two-agent-loop
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review-light
 npx skills@latest add fishstoryyy/agent-tools --skill session-companion
+npx skills@latest add fishstoryyy/agent-tools --skill teach-me
 ```
 
 To list available skills before installing:

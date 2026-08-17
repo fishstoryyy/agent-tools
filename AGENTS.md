@@ -10,6 +10,8 @@
 
 Whenever a task changes any file under `skills/<skill-name>/`, propagate that exact skill to the user's local agent installations before considering the task complete.
 
+When adding, removing, or renaming a skill—or materially changing its user-facing purpose—update the relevant catalog, repository-layout, and install examples in `README.md` in the same change. Update dated publication-verification claims only after rerunning those checks.
+
 1. Identify every changed skill by folder name.
 2. Validate the repository skills:
 
