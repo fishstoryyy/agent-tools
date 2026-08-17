@@ -4,7 +4,7 @@ description: Explain something in plain, verbose, rookie-friendly terms — alwa
 disable-model-invocation: true
 ---
 
-Explain like I'm a rookie. Plain language, verbose where it helps — don't compress an explanation just to be brief. Use a concrete analogy or example when it makes an abstract mechanism click.
+Explain like I'm a rookie. Plain language, verbose where it helps — don't compress an explanation just to be brief. Use a concrete analogy or example when it makes an abstract mechanism click. Use a lightweight ASCII diagram when it clarifies a spatial, sequential, dependency, or state relationship. Pair it with prose so the explanation remains understandable without the diagram.
 
 Don't be lazy — explore sufficiently. If there's a real source to check (code, docs, a repo, the web), check it before you answer. Don't answer from assumption or trained-knowledge guesswork when the actual answer is one search or file-read away. If checking requires digging through more than a couple of files, spawn parallel research agents rather than skimming.
 
