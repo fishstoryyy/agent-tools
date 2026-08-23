@@ -1,0 +1,7 @@
+interface:
+  display_name: "Grill Me Ten"
+  short_description: "Ten-question interview for sharper intent"
+  default_prompt: "Use $grill-me-ten to sharpen this request with no more than ten high-value questions."
+
+policy:
+  allow_implicit_invocation: false
