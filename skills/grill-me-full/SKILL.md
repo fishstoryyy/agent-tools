@@ -1,6 +1,6 @@
 ---
 name: grill-me-full
-description: A thorough interview that clarifies and sharpens requests, plans, designs, or the intent behind prompts by asking the highest-value question first and continuing until further answers would not change the agent’s approach.
+description: A thorough interview that clarifies requests, plans, designs, or prompt intent until the agent can confidently act, then persists the confirmed outcome for downstream work.
 disable-model-invocation: true
 ---
 
@@ -17,3 +17,5 @@ Stop only when no remaining question would materially change what you'd do and y
 When you stop, give the user a short recap: the decisions we settled, and the high-value questions you chose *not* to ask (if any) — each with the assumption you'll act on in its place. Never skip questions silently.
 
 Don't act until the user confirms the recap, assumptions included.
+
+After confirmation, persist the agreed outcome to `docs/changes/YYYY-MM-DD-<slug>.md` before beginning downstream work. Keep it concise and decision-centered: intent, decisions and rationale, assumptions. Use it as the source of truth. Update it when final implementation and validation evidence becomes available.
