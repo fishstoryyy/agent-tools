@@ -1,7 +1,7 @@
 interface:
   display_name: "Grill Me Full"
-  short_description: "Thorough interview with durable change records"
-  default_prompt: "Use $grill-me-full to sharpen this request, persist the confirmed outcome as a change record, and maintain it through delivery."
+  short_description: "Thorough interview until full alignment"
+  default_prompt: "Use $grill-me-full to sharpen this request with high-value questions until nothing material remains unclear."
 
 policy:
   allow_implicit_invocation: false
