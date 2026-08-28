@@ -1,6 +1,6 @@
 ---
 name: grill-me-full
-description: A thorough interview that clarifies and sharpens requests, plans, designs, or the intent behind prompts — continuing until the agent and the user share the same understanding and the agent can confidently act on what the user really wants.
+description: A thorough interview that clarifies and sharpens requests, plans, designs, or the intent behind prompts — continuing until the agent and the user share the same understanding and the agent can faithfully act on what the user really wants.
 disable-model-invocation: true
 ---
 
@@ -10,9 +10,9 @@ Rank the open decisions by expected value — how much the answer would change w
 
 Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first and mark it as recommended when the tool supports that. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 
-Finding discoverable _facts_ and developing informed options is your job, not the user's. Before asking a question, aggressively inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask the user for facts you can find yourself. Asking a question without thorough fact-finding is dangerous and can steer the conversation in the wrong direction. The _decisions_ are the user's: put each to them and wait.
+Finding discoverable _facts_ and developing informed options is your job, not the user's. Before asking a question, aggressively inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask the user for facts you can find yourself. Asking a question without thorough fact-finding is dangerous: it can steer the conversation in the wrong direction. A question grounded in deep domain understanding can instead add substantial value. The _decisions_ are the user's: put each to them and wait.
 
-Stop only when no remaining question would materially change what you'd do and you have reached a shared understanding with the user — a point where you can faithfully act on what the user really wants.
+Stop only when no remaining question would materially change what you'd do and you and the user are fully aligned on the approach and intended outcome — a point where you can faithfully act on what the user really wants.
 
 When you stop, give the user a short recap: the decisions we settled and, if any questions were deliberately left unasked, why you skipped each and the assumption you'll use in its place. Never skip questions silently.
 
