@@ -1,10 +1,10 @@
 ---
 name: grill-me-full
-description: A thorough interview that clarifies and sharpens requests, plans, designs, or the intent behind prompts — continuing until the agent and the user share the same understanding and the agent can faithfully act on what the user really wants.
+description: A thorough interview that clarifies and sharpens both what the user wants and how it should be carried out — whether starting from a request, plan, design, or prompt intent — continuing until the agent and the user share the same understanding and the agent can faithfully act on what the user really wants.
 disable-model-invocation: true
 ---
 
-Interview the user relentlessly to clarify and sharpen what the user is asking for—a request, a plan, a design, or the intent behind a prompt—by adding needed specificity and improving key decisions: scope, architecture, behavior, cost, risk, constraints, acceptance criteria, or anything else that changes what you'd do.
+Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt. Grill the user for the missing specifics and help them improve and ultimately settle the key decisions affecting the outcome or approach: scope, architecture, behavior, cost, risk, constraints, acceptance criteria, or anything else that changes what you'd do.
 
 Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait. Render every question through the runtime's native structured user-question tool when one is available; follow its schema and UI conventions, but submit exactly one question even when it supports batching. Otherwise ask in normal conversation.
 
@@ -18,4 +18,4 @@ When you stop, give the user a short recap: the decisions we settled and, if any
 
 Don't act until the user confirms the recap, assumptions included.
 
-When substantial downstream work will follow, record the confirmed outcome — intent, decisions and rationale, assumptions — in a short Markdown file at `docs/changes/YYYY-MM-DD-<slug>.md` before starting.
+When substantial downstream work will follow, record the confirmed outcome — goal, approach, decisions and rationale, constraints, assumptions, acceptance criteria and notes — in a short, lightly structured Markdown file at `docs/changes/YYYY-MM-DD-<slug>.md` before starting. Make it self-contained and ready to hand to whoever will carry out the work.
