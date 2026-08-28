@@ -18,4 +18,4 @@ When you stop, give the user a short recap: the decisions we settled and, if any
 
 Don't act until the user confirms the recap, assumptions included.
 
-When substantial downstream work will follow, record the confirmed outcome — goal, approach, decisions and rationale, constraints, assumptions, acceptance criteria and notes — in a short, lightly structured Markdown file at `docs/changes/YYYY-MM-DD-<slug>.md` before starting. Make it self-contained and ready to hand to whoever will carry out the work.
+When substantial downstream work will follow, record the confirmed outcome — goal, approach, decisions and rationale, constraints, assumptions, and acceptance criteria — in a short, lightly structured Markdown file at `docs/changes/YYYY-MM-DD-<slug>.md` before starting. Include an empty `Implementation notes` section, clearly marked for the implementation agent to complete during downstream work. Make the file self-contained and ready to hand to whoever will carry out the work.
