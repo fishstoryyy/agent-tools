@@ -1,0 +1,7 @@
+interface:
+  display_name: "Mastermind"
+  short_description: "Investigate and sharpen consequential ideas"
+  default_prompt: "Use $mastermind to investigate and pressure-test my idea before I decide what to do."
+
+policy:
+  allow_implicit_invocation: false
