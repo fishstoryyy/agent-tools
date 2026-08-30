@@ -60,6 +60,8 @@ agent-tools/
     solidify/
       SKILL.md
       agents/openai.yaml
+      references/goal-schema.md
+      scripts/validate-goal.py
     teach-me/
       SKILL.md
       agents/openai.yaml
@@ -89,7 +91,7 @@ agent-tools/
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
 | [`session-companion`](skills/session-companion/SKILL.md) | Read-only live coach for a separate Claude Code or OMP session: reconstructs the other conversation, orients you on each refresh, and helps you understand, challenge, and steer it without ever writing to the other session. |
-| [`solidify`](skills/solidify/SKILL.md) | Evidence-led challenge of an articulated request, goal brief, plan, or design that resolves material tradeoffs and makes its goal and normative constraints decision-ready. |
+| [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for Codex Goal mode. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
 
 ## Install

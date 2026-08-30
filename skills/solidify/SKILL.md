@@ -1,23 +1,70 @@
 ---
 name: solidify
-description: An evidence-led challenge of an already articulated request, goal brief, plan, or design that tests assumptions, resolves material tradeoffs, and makes its goal and normative constraints decision-ready.
+description: Finalize an articulated software change through evidence-led challenge, resolve every material goal and normative implementation ambiguity, then create a validated goal contract and goal-only Git commit ready for Codex Goal mode. Use after goal discovery or whenever a change needs an implementation-ready contract; do not use for tactical planning or implementation.
 disable-model-invocation: true
 ---
 
-Start from the user's existing articulation and subject it to evidence-led challenge. Bring relevant domain knowledge together with discovered facts to expose unsupported assumptions, contradictions, implications, and material tradeoffs. Do not repeat settled goal discovery unless new evidence would materially change or invalidate a prior decision.
+# Solidify
 
-Sharpen only the normative "how": architectural and ownership boundaries, required tradeoffs, compatibility or migration commitments, risk and permission constraints, and verification obligations. Do not turn the artifact into a file-by-file implementation plan or task sequence; leave tactical choices to the implementing agent unless a choice is itself part of the accepted contract.
+Turn the user's current articulation into an accepted, implementation-ready change contract. The
+goal-only commit—not completion of an upstream interview—is the phase boundary. Reuse sound prior
+decisions, including a `grill-the-goal` brief when one exists, but own every remaining readiness gap.
 
-Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait.
+## Resolve the contract
 
-Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
+1. Inspect the repository and other available evidence before forming important opinions. Find
+   discoverable facts yourself and combine them with relevant domain knowledge.
+2. Expose unsupported assumptions, contradictions, implications, and material tradeoffs. Resolve
+   both goal-level gaps and normative implementation choices when they constrain an acceptable
+   solution. Do not repeat settled discovery unless evidence puts it in doubt.
+3. Rank open decisions by how much their answers could change the contract, weighted by uncertainty.
+   Ask the highest-value question first, one decision per turn, and reassess after every answer.
+   Offer two or three distinct options with the recommended option first when that aids judgment.
+4. Preserve implementation freedom. Settle architecture, ownership boundaries, compatibility,
+   migration commitments, risk and permission limits, and verification obligations only when they
+   materially bound success. Do not produce a file-by-file plan, task sequence, or tactical design.
 
-Finding discoverable _facts_ and developing informed options is your job, not the user's. Before asking a question, aggressively inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask the user for facts you can find yourself. Don't merely collect facts or use them to frame questions; synthesize them with your domain knowledge into the challenges, options, and recommendations you put to the user. Asking a question without thorough fact-finding is dangerous: it can steer the conversation in the wrong direction. A question grounded in deep domain understanding can instead add substantial value. The _decisions_ are the user's: put each to them and wait.
+Do not end the inquiry while a material concern remains. A material concern is any unresolved issue
+that could change the desired outcome, scope, non-goals, hard constraints, acceptable solution space,
+or acceptance evidence. Investigating and resolving it is Solidify's responsibility. A factual
+unknown may survive only when it cannot block safe progress and the contract states how it will be
+resolved and when it must be escalated.
 
-Stop when the surviving goal and normative constraints can withstand the discovered evidence, and no unresolved question would materially change the intended outcome or acceptable solution space. A complete implementation plan is not required.
+Every completed invocation produces the contract and commit below; do not apply a task-size
+threshold.
 
-When you stop, give the user a short recap: the decisions we settled and, if any questions were deliberately left unasked, why you skipped each and the assumption you'll use in its place. Never skip questions silently.
+## Draft and confirm
 
-Don't act until the user confirms the recap, assumptions included.
+1. Read [the goal contract schema](references/goal-schema.md) completely.
+2. Inspect `HEAD`, the index, and the working tree. Preserve all unrelated staged, unstaged, and
+   untracked work. Stop with a precise explanation if relevant implementation has already begun
+   without an accepted contract or the target path already exists.
+3. Record the full current `HEAD`, derive a concise kebab-case change identity, and target only
+   `docs/changes/YYYY-MM-DD-<slug>/goal.md`.
+4. Synthesize a self-contained `goal/v1` contract. Include only material decisions and constraints.
+   Make every acceptance criterion observable and state the required kind and strength of evidence,
+   while leaving the exact proof mechanism to the implementing agent unless an authoritative process
+   or genuine constraint fixes it.
+5. Validate the exact draft outside the target path with
+   `python3 <skill-directory>/scripts/validate-goal.py <temporary-goal.md>`. Structural success does
+   not establish semantic readiness; audit the substance yourself against the standard above.
+6. Present the exact validated draft, target path, validation result, and intended commit message as
+   the single final recap. Ask for explicit confirmation and wait. If the user changes a decision,
+   resume the inquiry rather than patching around it.
 
-When substantial downstream work will follow, hand the confirmed decisions to the repository's canonical change lifecycle. Persist only the accepted goal, normative approach decisions and rationale, constraints, assumptions, and acceptance criteria; leave tactical planning to the implementing agent. If no repository lifecycle authority exists, provide a self-contained handoff and obtain explicit direction before creating repository artifacts.
+Do not create the target file or commit before that confirmation.
+
+## Materialize the boundary
+
+1. Confirm that `HEAD` still matches the approved draft's starting commit. If it changed, inspect the
+   delta, refresh the contract, revalidate it, and obtain confirmation again.
+2. Write the exact approved bytes to the new target path and validate it again.
+3. Stage the target and use a path-limited commit so unrelated index entries remain untouched. Follow
+   the repository's commit-message conventions; when none exist, use
+   `docs(goal): add <change identity>`.
+4. Verify that the new commit contains exactly `goal.md`, that its committed bytes match the approved
+   draft, and that unrelated working-tree and index state was preserved. Do not rewrite history or
+   attempt destructive recovery if a hook or concurrent change violates an invariant; report the
+   exact state.
+5. Announce only the committed artifact path and commit SHA, plus that it is ready for Goal mode.
+   Do not generate a Goal-mode prompt, activate a goal, or start implementation.
