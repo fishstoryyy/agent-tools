@@ -1,7 +1,7 @@
 interface:
   display_name: "Solidify"
-  short_description: "Evidence-led interview for firm decisions"
-  default_prompt: "Use $solidify to sharpen this request with evidence-led, high-value questions until nothing material remains unclear."
+  short_description: "Evidence-led challenge for firm decisions"
+  default_prompt: "Use $solidify to challenge this articulated request, brief, plan, or design with evidence, resolve material tradeoffs, and make its goal and normative constraints decision-ready."
 
 policy:
   allow_implicit_invocation: false

@@ -89,7 +89,7 @@ agent-tools/
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
 | [`session-companion`](skills/session-companion/SKILL.md) | Read-only live coach for a separate Claude Code or OMP session: reconstructs the other conversation, orients you on each refresh, and helps you understand, challenge, and steer it without ever writing to the other session. |
-| [`solidify`](skills/solidify/SKILL.md) | Thorough, evidence-led interview that combines domain knowledge with discovered facts to challenge assumptions, surface tradeoffs, and drive better-informed decisions until the agent and user share a decision-ready understanding. |
+| [`solidify`](skills/solidify/SKILL.md) | Evidence-led challenge of an articulated request, goal brief, plan, or design that resolves material tradeoffs and makes its goal and normative constraints decision-ready. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
 
 ## Install
