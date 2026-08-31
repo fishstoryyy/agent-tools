@@ -1,7 +1,7 @@
 interface:
   display_name: "Grill Me Full"
-  short_description: "Thorough interview until full alignment"
-  default_prompt: "Use $grill-me-full to sharpen this request with high-value questions until nothing material remains unclear."
+  short_description: "Thorough interview until full strategic alignment"
+  default_prompt: "Use $grill-me-full to sharpen this request with high-value questions until the intended outcome and bounds of an acceptable solution are clear."
 
 policy:
   allow_implicit_invocation: false
