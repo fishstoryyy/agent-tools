@@ -16,8 +16,8 @@ particular change.
 > **Execution:** This is the accepted outcome contract, not an implementation plan. Keep all
 > contract text above Implementation Notes unchanged. The implementing agent owns every decision
 > not explicitly constrained here and should choose the best means to satisfy every acceptance
-> criterion. Only append an Implementation Note when an approach-level deviation is absolutely
-> unavoidable under the policy below.
+> criterion. Only append an Implementation Note when a strategic deviation from the settled approach
+> is absolutely unavoidable under the policy below.
 
 ## Desired Outcome
 
@@ -49,9 +49,10 @@ particular change.
 
 This section is initially empty and is the only mutable part of this file. Replace `- None.` with a
 consecutive `IN-###` record only when reasonable investigation shows that compliance with a settled
-approach decision is impossible. Routine discoveries, progress, and ordinary implementation choices
-do not belong here. A note may never relax the desired outcome, scope, non-goals, hard constraints,
-or acceptance criteria; changing one of those requires stopping and re-solidifying the contract.
+decision is truly impossible. Routine discoveries, progress, and ordinary implementation choices do not belong here. A note should have an extremely high bar and may authorize only the narrowest necessary
+amendment. It must keep the desired outcome and non-goals intact, explain why the amendment is
+unavoidable, show that it does not materially reduce user value or verification strength, and specify
+replacement evidence. 99% of the time this section will remain empty after the implementation, because the strategic decisions have been carefully settled beforehand.
 
 - None.
 ```
@@ -76,13 +77,14 @@ replaced only with consecutive records in this compact shape:
 
 ```markdown
 - `IN-001`
-  - **Affected decision:** <The settled approach decision that cannot be followed.>
+  - **Affected decision:** <The settled decision that cannot be followed.>
   - **Why unavoidable:** <Evidence that compliance became impossible.>
   - **Alternatives attempted or ruled out:** <Reasonable compliant options investigated.>
   - **Minimal deviation:** <The narrowest exception taken.>
-  - **Protected terms:** <Why outcome, scope, non-goals, hard constraints, and acceptance criteria remain intact.>
-  - **Verification evidence:** <Evidence that the deviation still satisfies the contract.>
+  - **Outcome protection:** <Why the desired outcome and non-goals remain intact and user value and verification strength are not materially reduced.>
+  - **Verification evidence:** <Replacement evidence that the amended path satisfies the contract.>
 ```
 
 Contract text above `Implementation Notes` remains unchanged. These records document and authorize
-only unavoidable approach-level exceptions; they do not amend the protected terms.
+only unavoidable, evidence-backed deviations or narrow amendments permitted by the policy; they do
+not silently rewrite the contract or redefine success.

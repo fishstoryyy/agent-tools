@@ -23,13 +23,13 @@ H2_HEADINGS = [
 SCOPE_HEADINGS = ["### In scope", "### Non-goals"]
 AC_RE = re.compile(r"^\s*(?:(?:[-*+]|\d+\.)\s+|\|\s*)?`AC-(\d{3})`(?:\s|\||$)")
 IN_RE = re.compile(r"^- `IN-(\d{3})`(?:\s|$)")
-IN_FIELDS = [
-    "**Affected decision:**",
-    "**Why unavoidable:**",
-    "**Alternatives attempted or ruled out:**",
-    "**Minimal deviation:**",
-    "**Protected terms:**",
-    "**Verification evidence:**",
+IN_FIELD_ALIASES = [
+    ("**Affected decision or term:**", "**Affected decision:**"),
+    ("**Why unavoidable:**",),
+    ("**Alternatives attempted or ruled out:**",),
+    ("**Minimal deviation:**",),
+    ("**Outcome protection:**", "**Protected terms:**"),
+    ("**Verification evidence:**",),
 ]
 PLACEHOLDERS = {
     "# <Change Title>",
@@ -202,7 +202,11 @@ def validate(path: Path) -> list[str]:
         for entry_index, (start, note_id) in enumerate(note_entries):
             end = note_entries[entry_index + 1][0] if entry_index + 1 < len(note_entries) else len(notes)
             block = "\n".join(visible_notes[start:end])
-            missing = [field for field in IN_FIELDS if field not in block]
+            missing = [
+                aliases[0]
+                for aliases in IN_FIELD_ALIASES
+                if not any(field in block for field in aliases)
+            ]
             if missing:
                 errors.append(f"IN-{note_id:03d} is missing fields: {missing!r}")
 
