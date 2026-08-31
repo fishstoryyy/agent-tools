@@ -1,0 +1,7 @@
+interface:
+  display_name: "Strategize"
+  short_description: "Thorough interview until full strategic alignment"
+  default_prompt: "Use $strategize to sharpen this request with high-value questions until the intended outcome and bounds of an acceptable solution are clear."
+
+policy:
+  allow_implicit_invocation: false
