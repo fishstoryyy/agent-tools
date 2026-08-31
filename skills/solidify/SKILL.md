@@ -1,6 +1,6 @@
 ---
 name: solidify
-description: Finalize an articulated software change through evidence-led challenge, resolve every material goal and normative implementation ambiguity, then create a validated goal contract and goal-only Git commit ready for Codex Goal mode. Use after goal discovery or whenever a change needs an implementation-ready contract; do not use for tactical planning or implementation.
+description: Solidify a software change through evidence-led challenge, resolve every material goal and normative implementation ambiguity, then create a validated goal contract and goal-only Git commit ready for goal-driven implementation. Use after goal discovery or whenever a change needs an implementation-ready contract.
 disable-model-invocation: true
 ---
 
@@ -20,13 +20,13 @@ decisions, including a `grill-the-goal` brief when one exists, but own every rem
 3. Rank open decisions by how much their answers could change the contract, weighted by uncertainty.
    Ask the highest-value question first, one decision per turn, and reassess after every answer.
    Offer two or three distinct options with the recommended option first when that aids judgment.
-4. Preserve implementation freedom. Settle architecture, ownership boundaries, compatibility,
-   migration commitments, risk and permission limits, and verification obligations only when they
-   materially bound success. Do not produce a file-by-file plan, task sequence, or tactical design.
+4. Settle strategic implementation decisions about architecture, ownership boundaries, compatibility,
+   migration commitments, risk and permission limits, and verification obligations when they
+   meaningfully bound success. Preserve tactical implementation freedom. Do not produce a file-by-file plan, task sequence, or tactical design.
 
 Do not end the inquiry while a material concern remains. A material concern is any unresolved issue
 that could change the desired outcome, scope, non-goals, hard constraints, acceptable solution space,
-or acceptance evidence. Investigating and resolving it is Solidify's responsibility. A factual
+or acceptance evidence. Investigating and resolving it is this skill's responsibility. A factual
 unknown may survive only when it cannot block safe progress and the contract states how it will be
 resolved and when it must be escalated.
 
@@ -66,5 +66,6 @@ Do not create the target file or commit before that confirmation.
    draft, and that unrelated working-tree and index state was preserved. Do not rewrite history or
    attempt destructive recovery if a hook or concurrent change violates an invariant; report the
    exact state.
-5. Announce only the committed artifact path and commit SHA, plus that it is ready for Goal mode.
-   Do not generate a Goal-mode prompt, activate a goal, or start implementation.
+5. Announce only the committed artifact path and commit SHA, plus that it is ready for goal-driven
+   implementation.
+6. Stop after the announcement; do not start implementation until I confirm.

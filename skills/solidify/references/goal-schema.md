@@ -61,7 +61,8 @@ or acceptance criteria; changing one of those requires stopping and re-solidifyi
 Each `AC-###` must be observable and falsifiable. State the proof obligation at the level needed to
 judge completion while preserving implementation freedom. Name an exact command, tool, artifact, or
 reviewer only when an existing authority or genuine constraint makes that mechanism part of the
-contract. The complete set of acceptance criteria is the Goal-mode stopping condition.
+contract. The complete set of acceptance criteria is the contract's implementation stopping
+condition.
 
 ## Unknowns
 

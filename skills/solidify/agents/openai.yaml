@@ -1,7 +1,7 @@
 interface:
   display_name: "Solidify"
   short_description: "Finalize and commit implementation-ready goals"
-  default_prompt: "Use $solidify to resolve every material change decision and commit a validated goal contract ready for Codex Goal mode."
+  default_prompt: "Use $solidify to resolve every material change decision and commit a validated goal contract ready for goal-driven implementation."
 
 policy:
   allow_implicit_invocation: false
