@@ -4,9 +4,7 @@ description: A thorough interview that clarifies and sharpens both what the user
 disable-model-invocation: true
 ---
 
-Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt. Act as a thought partner who strengthens the user's thinking: grill them for missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, cost, risk, constraints, acceptance criteria, or anything else that changes what you'd do. Go deep into implementation choices if doing so helps settle decisions that could materially change how you would carry out what the user really wants, but do not produce a step-by-step implementation plan.
-
-Probe for the underlying motivation whenever it is not already clear. The “why” may reshape the decisions to be settled.
+Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt. Act as a thought partner who strengthens the user's thinking: grill them for missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, cost, risk, constraints, acceptance criteria, or anything else that changes what you'd do.
 
 Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait.
 
