@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 Interview the user relentlessly to clarify and sharpen both what the user wants and the strategic decisions that bound how it is carried out — whether the starting point is a request, plan, design, or the intent behind a prompt. Act as a thought partner who strengthens the user's thinking: grill them for missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture and ownership boundaries, behavior, compatibility and migration commitments, cost, risk, constraints, acceptance criteria, or anything else that materially changes what you'd do. Leave tactical choices to whoever is doing the implementation unless they would change that outcome or those bounds.
 
+Probe for the underlying motivation whenever it is not already clear. The “why” may reshape the decisions to be settled.
+
 Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait.
 
 Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
