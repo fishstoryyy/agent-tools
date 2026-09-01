@@ -27,6 +27,9 @@ agent-tools/
     explain-like-rookie/
       SKILL.md
       agents/openai.yaml
+    grill-me/
+      SKILL.md
+      agents/openai.yaml
     grill-me-companion/
       SKILL.md
       agents/openai.yaml
@@ -87,6 +90,7 @@ agent-tools/
 | [`context-handoff`](skills/context-handoff/SKILL.md) | Tight, self-contained prompts for handing work to a fresh agent or session. |
 | [`create-session-handoff`](skills/create-session-handoff/SKILL.md) | Durable workspace handoffs for continuing active work in a fresh session. |
 | [`explain-like-rookie`](skills/explain-like-rookie/SKILL.md) | Source-verified, rookie-friendly explanations that pair claims with their practical significance and use concrete examples or a TL;DR when helpful. |
+| [`grill-me`](skills/grill-me/SKILL.md) | Lean, unbudgeted interview that settles every material decision or ambiguity before acting, strengthening the user's thinking while integrating motivation, preferences, and taste. |
 | [`grill-me-companion`](skills/grill-me-companion/SKILL.md) | Deprecated — superseded by [`session-companion`](skills/session-companion/SKILL.md). Read-only coaching for understanding and steering a separate Claude Code or OMP session. |
 | [`grill-me-full`](skills/grill-me-full/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. |
 | [`grill-the-goal`](skills/grill-the-goal/SKILL.md) | Goal-focused interviewing that produces decision-ready briefs by clarifying relevant context, actors, sources, outcomes, success evidence, tradeoffs, constraints, and unknowns without entering implementation planning. |
@@ -113,6 +117,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill build-context-to-do-someth
 npx skills@latest add fishstoryyy/agent-tools --skill context-handoff
 npx skills@latest add fishstoryyy/agent-tools --skill create-session-handoff
 npx skills@latest add fishstoryyy/agent-tools --skill explain-like-rookie
+npx skills@latest add fishstoryyy/agent-tools --skill grill-me
 # Deprecated — superseded by session-companion
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-companion
 npx skills@latest add fishstoryyy/agent-tools --skill grill-me-full
