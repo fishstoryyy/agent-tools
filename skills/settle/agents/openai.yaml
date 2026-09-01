@@ -1,0 +1,6 @@
+interface:
+  display_name: "Settle"
+  short_description: "Settle a coding goal before implementation"
+  default_prompt: "Use $settle to turn this software goal into a decision-ready brief."
+policy:
+  allow_implicit_invocation: false

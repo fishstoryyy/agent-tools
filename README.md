@@ -57,6 +57,9 @@ agent-tools/
     session-companion/
       SKILL.md
       agents/openai.yaml
+    settle/
+      SKILL.md
+      agents/openai.yaml
     solidify/
       SKILL.md
       agents/openai.yaml
@@ -94,6 +97,7 @@ agent-tools/
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
 | [`session-companion`](skills/session-companion/SKILL.md) | Read-only live coach for a separate Claude Code or OMP session: reconstructs the other conversation, orients you on each refresh, and helps you understand, challenge, and steer it without ever writing to the other session. |
+| [`settle`](skills/settle/SKILL.md) | Explicit-only, rigorous interviewing that turns a software-engineering request into a decision-ready goal artifact without planning or implementation. |
 | [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for goal-driven implementation. |
 | [`strategize`](skills/strategize/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. Settles the strategic "how" and leaves tactical choices to whoever carries out the implementation. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
@@ -121,6 +125,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill orca-two-agent-loop
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review-light
 npx skills@latest add fishstoryyy/agent-tools --skill session-companion
+npx skills@latest add fishstoryyy/agent-tools --skill settle
 npx skills@latest add fishstoryyy/agent-tools --skill solidify
 npx skills@latest add fishstoryyy/agent-tools --skill strategize
 npx skills@latest add fishstoryyy/agent-tools --skill teach-me
