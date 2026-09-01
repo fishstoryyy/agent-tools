@@ -47,6 +47,8 @@ Use this structure as a reference:
 ```markdown
 # <Goal title>
 
+## Context
+
 ## Intended Outcome
 
 ## Scope
@@ -59,8 +61,6 @@ Use this structure as a reference:
 
 ## Acceptance Criteria
 ```
-
-Under strategic decisions, record each chosen approach with a concise rationale. Mention a rejected alternative only when doing so prevents likely relitigation or misimplementation.
 
 Number every acceptance criterion. Each must be independently pass/fail and state both the observable outcome and acceptable verification evidence. Do not prescribe files, internal structures, algorithms, commands, or test organization unless the user settled them as material requirements. Acceptance criteria evaluate the result; they do not weaken the implementation agent's obligation or freedom to do its best work.
 
