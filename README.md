@@ -74,6 +74,10 @@ agent-tools/
     teach-me/
       SKILL.md
       agents/openai.yaml
+    to-goal/
+      SKILL.md
+      agents/openai.yaml
+      scripts/validate-goal.py
   tools/
   templates/
   docs/
@@ -105,6 +109,7 @@ agent-tools/
 | [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for goal-driven implementation. |
 | [`strategize`](skills/strategize/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. Settles the strategic "how" and leaves tactical choices to whoever carries out the implementation. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
+| [`to-goal`](skills/to-goal/SKILL.md) | Explicit-only final gate that turns settled session decisions into an uncommitted, validated `goal.md` while preserving implementer freedom. |
 
 ## Install
 
@@ -134,6 +139,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill settle
 npx skills@latest add fishstoryyy/agent-tools --skill solidify
 npx skills@latest add fishstoryyy/agent-tools --skill strategize
 npx skills@latest add fishstoryyy/agent-tools --skill teach-me
+npx skills@latest add fishstoryyy/agent-tools --skill to-goal
 ```
 
 To list available skills before installing:

@@ -1,0 +1,7 @@
+interface:
+  display_name: "To Goal"
+  short_description: "Turn settled decisions into an artifact to guide implementation."
+  default_prompt: "Use $to-goal to turn our settled decisions into a validated goal.md ready for implementation."
+
+policy:
+  allow_implicit_invocation: false
