@@ -12,13 +12,13 @@ Turn the current session context into a decision-complete contract for the imple
 
 Treat the current session context as the primary source. Perform only targeted investigation when needed to verify a material fact or suspected contradiction.
 
-If any of intended outcome, scope, non-goals, settled strategic decisions, technical and nontechnical constraints or dependencies, and acceptance criteria remain unclear or there are ambiguities that could cause the implementer to make material assumptions on behalf of the user, return to the user for clarification.
+If any of the intended outcome, scope, non-goals, settled strategic decisions, technical and nontechnical constraints or dependencies, and acceptance criteria remain unclear, or if there are ambiguities that could cause the implementer to make material assumptions on behalf of the user, return to the user for clarification.
 
 ## Create the artifact
 
 Use the workspace's local date and a concise kebab-case slug to target `docs/changes/YYYY-MM-DD-<slug>/goal.md`.
 
-Draft the exact artifact in a temporary location named `goal.md`, validate it with
+Draft the exact artifact in a temporary file named `goal.md`, validate it with
 `python3 <skill-directory>/scripts/validate-goal.py <temporary-goal.md>`, then write the validated
 bytes to the target and validate the target again.
 
@@ -57,4 +57,4 @@ Keep the artifact self-contained and proportionate to the task:
 - Give acceptance criteria unique, consecutive `AC-###` identifiers. Make each criterion observable and falsifiable, and state the kind and strength of evidence needed to judge it.
 - Preserve the implementing agent's tactical freedom. Do not prescribe files, internal structures, algorithms, work sequence, commands, or test organization unless the session explicitly settled them as material requirements.
 
-Treat `goal.md` as read-only during implementation. Leave uncommitted. Finish by reporting the artifact path and successful validation.
+Finish by staging the artifact, reporting the artifact path and successful validation.
