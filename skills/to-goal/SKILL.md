@@ -32,6 +32,10 @@ Use this exact envelope:
 
 - **Schema:** `to-goal/v1`
 
+> This file is the contract guiding the work. Do not edit or commit it.
+> If a criterion seems wrong or unachievable as written, report it to the user rather than
+> technically satisfying it while violating its intended outcome.
+
 ## Context
 
 ## Intended Outcome

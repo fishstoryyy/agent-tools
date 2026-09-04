@@ -9,6 +9,11 @@ from pathlib import Path
 
 
 SCHEMA_LINE = "- **Schema:** `to-goal/v1`"
+CONTRACT_PREAMBLE = [
+    "> This file is the contract guiding the work. Do not edit or commit it.",
+    "> If a criterion seems wrong or unachievable as written, report it to the user rather than",
+    "> technically satisfying it while violating its intended outcome.",
+]
 H2_HEADINGS = [
     "## Context",
     "## Intended Outcome",
@@ -91,12 +96,12 @@ def validate(path: Path) -> list[str]:
         return errors
 
     first_section = positions[H2_HEADINGS[0]]
-    metadata = visible[1:first_section]
-    if [line for line in metadata if line == SCHEMA_LINE] != [SCHEMA_LINE]:
-        errors.append(f"metadata must contain exactly one {SCHEMA_LINE!r}")
-    if any(line.strip() and line != SCHEMA_LINE for line in metadata):
-        errors.append("metadata may contain only the to-goal/v1 schema line")
-
+    metadata = [line for line in visible[1:first_section] if line.strip()]
+    if metadata != [SCHEMA_LINE, *CONTRACT_PREAMBLE]:
+        errors.append(
+            "metadata must contain exactly the to-goal/v1 schema line "
+            "followed by the contract preamble"
+        )
     ranges: dict[str, tuple[int, int]] = {}
     for index, heading in enumerate(H2_HEADINGS):
         start = positions[heading] + 1

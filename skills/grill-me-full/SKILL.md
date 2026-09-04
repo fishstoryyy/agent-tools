@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Objective
 
-Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt. Act as a thought partner who strengthens the user's thinking: grill them for missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, cost, risk, constraints, acceptance criteria, or anything else that changes what you'd do. Resolve every material decision that could change the intended outcome or the bounds of an acceptable solution, minimizing the need for downstream implementation agents to decide on the user's behalf.
+Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt, until all material ambiguities and decisions are resolved. Strengthen the user's thinking: grill them for any key missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, tradeoffs, risk, constraints, acceptance criteria or anything else that could materially change the intended outcome or bounds of an acceptable solution.
 
 ## Interviewing Approach
 
