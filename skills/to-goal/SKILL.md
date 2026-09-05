@@ -59,6 +59,6 @@ Keep the artifact self-contained and proportionate to the task:
 - Include only outcomes and boundaries that constrain an acceptable solution. Use `- None.` when a required boundary section genuinely has no material content.
 - Record rationale only when it is needed to interpret a settled decision correctly.
 - Give acceptance criteria unique, consecutive `AC-###` identifiers. Make each criterion observable and falsifiable, and state the kind and strength of evidence needed to judge it.
-- Preserve the implementing agent's tactical freedom. Do not prescribe files, internal structures, algorithms, work sequence, commands, or test organization unless the session explicitly settled them as material requirements.
+- Preserve the implementing agent's tactical freedom so it can do its best work. Do not prescribe files, internal structures, algorithms, work sequence, commands, or test organization unless the session explicitly settled them as material requirements.
 
 Finish by staging the artifact, reporting the artifact path and successful validation.
