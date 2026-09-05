@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # To Goal
 
-Turn the current session context into a decision-complete contract for the implementer. This is a synthesis and readiness gate, not another grilling interview.
+Turn the current session context into a decision-complete contract for the implementer. Typically follows a confirmed grilling interview recap, but can use decisions settled elsewhere in the session. This is a synthesis and readiness gate, not another grilling interview.
 
 ## Gate readiness
 
