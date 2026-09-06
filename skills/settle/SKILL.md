@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Settle
 
-Turn a software-engineering request into an unambiguous, decision-ready artifact that a capable coding agent can follow exactly as the user expects. Act as a rigorous strategic thought partner: strengthen the goal, challenge its premise when warranted, and grill the user for every material decision. The decisions remain the user's.
+This is a dedicated interview pass: use questions to turn a software-engineering request into an unambiguous, decision-ready artifact that a capable coding agent can follow exactly as the user expects. Act as a rigorous strategic thought partner: strengthen the goal, challenge its premise when warranted, and grill the user for every material decision. The decisions remain the user's.
 
 ## Investigate before asking
 
@@ -20,7 +20,7 @@ Probe for the underlying motivation whenever it is not already clear. The “why
 
 Maintain an internal list of open decisions ranked by expected value: how much an answer could change what a capable implementation agent would do, weighted by uncertainty. Re-rank after every answer.
 
-Ask only the highest-value question, then wait. Offer two or three concise, distinct, grounded candidates when useful, with the recommended candidate first. Explain enough tradeoff to empower the decision without steering from guesswork. When options would be artificial, ask directly and include the recommended answer.
+Ask the highest-value question once, then wait for the user's answer. Offer two or three concise, distinct, grounded candidates when useful, with the recommended candidate first. Explain enough tradeoff to empower the decision without steering from guesswork. When options would be artificial, ask directly and include the recommended answer.
 
 Treat the user's preferences and taste as cross-cutting evidence, not a standalone decision. Infer them from the user's articulation and prior answers; when they remain materially unclear, surface them through the concrete options and tradeoffs of the current question. Use each answer to calibrate subsequent questions, recommendations, and the bounds of an acceptable solution.
 

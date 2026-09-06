@@ -1,15 +1,16 @@
 ---
 name: grill-the-goal
 description: Interview the user to turn a vague or unscoped goal into a decision-ready brief by clarifying the relevant context, actors, sources, outcome, success evidence, tradeoffs, constraints, and unknowns before implementation planning. Use when the user explicitly asks to "grill the goal," "scope this," or "figure out what I actually want," when a request is genuinely vague or unscoped, or when an active workflow delegates its goal-interview phase. Deliberately avoids implementation steps, architecture, and sequencing.
+disable-model-invocation: true
 ---
 
 # Grill the Goal
 
-Interview the user relentlessly about what they actually want — not how to build it. Apply this whether the goal is a whole new product or a single feature in an existing system. Walk down each relevant branch until the goal is decision-ready. Infer what you can from the conversation and available materials, then let the user confirm or correct your working understanding.
+This is a dedicated interview pass: relentlessly question the user to clarify what they actually want — not how to build it. Apply this whether the goal is a whole new product or a single feature in an existing system. Walk down each relevant branch until the goal is decision-ready. Infer what you can from the conversation and available materials, then let the user confirm or correct your working understanding.
 
 ## Rules
 
-1. **Resolve one decision per turn.** Ask one focused question at a time. Never bundle unrelated decisions.
+1. **Resolve one decision per turn.** Ask one focused question once, then wait for the user's answer. Never bundle unrelated decisions.
 2. **Offer a working hypothesis.** When there is ambiguity, give 2-3 concrete choices, recommend one, and briefly explain the basis for the recommendation. Make it easy to reject the framing entirely. When there is only one sane answer, state it as an assumption and ask for confirmation instead of manufacturing false choices.
 3. **Inspect available evidence before asking.** Check the conversation, codebase, and referenced materials for answers the user should not have to repeat. State the inference and its source, and ask for correction only when meaningful uncertainty remains.
 4. **Stay off the "how."** Do not ask the user to choose implementation details such as architecture, libraries, data structures, or sequencing; use `/plan` or a "how" interview for that afterward. Goal-level questions about causality, adoption, measurement, ownership, source authority, and technical constraints are still in scope.

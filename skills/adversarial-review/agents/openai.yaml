@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $adversarial-review to stress-test this artifact and propose the cheapest falsification tests."
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

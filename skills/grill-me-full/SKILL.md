@@ -8,13 +8,15 @@ disable-model-invocation: true
 
 ## Objective
 
-Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt, until all material ambiguities and decisions are resolved. Strengthen the user's thinking: grill them for any key missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, tradeoffs, risk, constraints, acceptance criteria or anything else that could materially change the intended outcome or bounds of an acceptable solution.
+This is a dedicated interview pass: use relentless questioning to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt, until all material ambiguities and decisions are resolved. Strengthen the user's thinking: grill them for any key missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, tradeoffs, risk, constraints, acceptance criteria or anything else that could materially change the intended outcome or bounds of an acceptable solution.
+
+Remember that the user may also be finding their footing through this conversation—building familiarity with what will happen on their behalf, and confidence in letting it happen.
 
 ## Interviewing Approach
 
-Rank the open decisions by expected value — how much each answer could change what you'd do, weighted by your uncertainty — and ask the highest-value one first. Ask one question at a time and wait.
+Rank the open decisions by expected value — how much each answer could change what you'd do, weighted by your uncertainty — and ask the highest-value one first. Ask one question at a time, present it only once, and wait for the user's answer.
 
-Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
+Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first and briefly explain why. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 
 Treat the user's motivation, preferences, and taste as cross-cutting evidence, not checklist items. Infer them from the user's articulation and prior answers; when they remain materially unclear, ask directly or surface them through the concrete options and tradeoffs of the current question. Use each answer to calibrate subsequent questions, recommendations, and the bounds of an acceptable solution.
 

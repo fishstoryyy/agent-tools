@@ -1,6 +1,7 @@
 ---
 name: adversarial-review
 description: Stress-test a plan, design, or implementation from first principles, identify its strongest plausible failure modes, and propose the cheapest falsification test for each. Use when the user explicitly asks for an adversarial review, stress test, first-principles critique, or asks where something would fail; also use when an active workflow assigns an adversarial review gate. Distinct from `prepare-adversarial-review`, which packages a handoff for a fresh reviewer; this skill performs the review inline.
+disable-model-invocation: true
 ---
 
 # Adversarial Review

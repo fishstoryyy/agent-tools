@@ -12,14 +12,21 @@ decisions, including a `grill-the-goal` brief when one exists, but own every rem
 
 ## Resolve the contract
 
+This phase is a dedicated interview: clarify intent and settle the contract's material decisions through questions.
+
 1. Inspect the repository and other available evidence before forming important opinions. Find
    discoverable facts yourself and combine them with relevant domain knowledge.
 2. Expose unsupported assumptions, contradictions, implications, and material tradeoffs. Resolve
    both goal-level gaps and normative implementation choices when they constrain an acceptable
-   solution. Do not repeat settled discovery unless evidence puts it in doubt.
+   solution. Probe for the underlying motivation whenever it is not already clear. The “why” may
+   reshape the decision to be settled. Do not repeat settled discovery unless evidence puts it in doubt.
 3. Rank open decisions by how much their answers could change the contract, weighted by uncertainty.
-   Ask the highest-value question first, one decision per turn, and reassess after every answer.
-   Offer two or three distinct options with the recommended option first when that aids judgment.
+   Ask the highest-value question once, one decision at a time, and reassess after the user's answer.
+   Offer two or three distinct options with the recommended option first when that aids judgment. Treat
+   the user's preferences and taste as cross-cutting evidence, not a standalone decision. Infer them
+   from the user's articulation and prior answers; when they remain materially unclear, surface them
+   through the concrete options and tradeoffs of the current question. Use each answer to calibrate
+   subsequent questions, recommendations, and the bounds of an acceptable solution.
 4. Settle strategic implementation decisions about architecture, ownership boundaries, compatibility,
    migration commitments, risk and permission limits, and verification obligations when they
    meaningfully bound success. Preserve tactical implementation freedom. Do not produce a file-by-file plan, task sequence, or tactical design.

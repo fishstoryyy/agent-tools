@@ -1,6 +1,7 @@
 ---
 name: session-companion
 description: "Act as a live conversation partner / coach for a SEPARATE ongoing Claude Code or OMP (oh-my-pi) session. The user is chatting with another agent (to build a feature, brainstorm, debug, or learn) and wants this in-session agent to read that other conversation so it can help them understand the other agent's replies, think through their next message, and oversee the direction. Use when the user passes another session's .jsonl path (e.g. ~/.claude/projects/project/session.jsonl or ~/.omp/agent/sessions/project/session.jsonl) and asks you to be their companion/second brain/overseer for it, says “session companion\", \"help me talk to the other agent\", \"watch my other session\", \"help me understand what the other agent said\", or \"think through my reply\". Read-only: never writes to the other session."
+disable-model-invocation: true
 ---
 
 # Session Companion

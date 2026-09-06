@@ -4,9 +4,9 @@ description: A budgeted interview that clarifies and sharpens requests, plans, d
 disable-model-invocation: true
 ---
 
-Interview me to clarify and sharpen what I’m asking for—a request, a plan, a design, or the intent behind a prompt—by adding needed specificity and improving key decisions. Use a budget: **at most 10 questions**. Spend them where they matter most.
+This is a dedicated interview pass: clarify and sharpen what I’m asking for—a request, a plan, a design, or the intent behind a prompt—by adding needed specificity and settling material decisions through questions. Use a budget: **at most 10 questions**. Spend them where they matter most.
 
-Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait.
+Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time, present it only once, and wait for the user's answer.
 
 Offer a few concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 

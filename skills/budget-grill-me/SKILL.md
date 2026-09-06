@@ -4,9 +4,9 @@ description: A budgeted interview to sharpen the intent behind a prompt, plan, o
 disable-model-invocation: true
 ---
 
-Interview me to sharpen what I'm asking for — a plan, a design, or the intent behind a prompt — but on a strict budget: **at most 6 questions**. Spend them where they matter most.
+This is a dedicated interview pass: sharpen what I'm asking for — a plan, a design, or the intent behind a prompt — through questions, on a strict budget: **at most 6 questions**. Spend them where they matter most.
 
-Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait.
+Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time, present it only once, and wait for the user's answer.
 
 Offer a few concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 

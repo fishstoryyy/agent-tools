@@ -4,9 +4,9 @@ description: A budgeted interview to align intent and define evidence-backed acc
 disable-model-invocation: true
 ---
 
-Interview me to sharpen what I'm asking for — a plan, a design, or the intent behind a prompt — but on a strict budget: **at most 10 questions**. Spend them where they matter most.
+This is a dedicated interview pass: sharpen what I'm asking for — a plan, a design, or the intent behind a prompt — through questions, on a strict budget: **at most 10 questions**. Spend them where they matter most.
 
-Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time and wait. Render every question through the runtime's native structured user-question tool when one is available; follow its schema and UI conventions, but submit exactly one question even when it supports batching. Otherwise ask in normal conversation.
+Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time, present it only once, and wait for the user's answer. Render every question through the runtime's native structured user-question tool when one is available; follow its schema and UI conventions, but submit exactly one question even when it supports batching. Otherwise ask in normal conversation.
 
 Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first and mark it as recommended when the tool supports that. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 
