@@ -57,6 +57,9 @@ agent-tools/
     prepare-adversarial-review-light/
       SKILL.md
       agents/openai.yaml
+    prepare-independent-review/
+      SKILL.md
+      agents/openai.yaml
     session-companion/
       SKILL.md
       agents/openai.yaml
@@ -104,6 +107,7 @@ agent-tools/
 | [`orca-two-agent-loop`](skills/orca-two-agent-loop/SKILL.md) | Orca-native manager-engineer workflow with adversarial plan and implementation review. |
 | [`prepare-adversarial-review`](skills/prepare-adversarial-review/SKILL.md) | Closed-loop review handoff with a context dossier, canonical Markdown report, and concise relay prompts. |
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
+| [`prepare-independent-review`](skills/prepare-independent-review/SKILL.md) | Explicit-only, short review prompt conveying the original problem and constraints; asks the reviewer to reason independently before inspecting the implementation. |
 | [`session-companion`](skills/session-companion/SKILL.md) | Read-only live coach for a separate Claude Code or OMP session: reconstructs the other conversation, orients you on each refresh, and helps you understand, challenge, and steer it without ever writing to the other session. |
 | [`settle`](skills/settle/SKILL.md) | Explicit-only, rigorous interviewing that turns a software-engineering request into a decision-ready goal artifact without planning or implementation. |
 | [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for goal-driven implementation. |
@@ -134,6 +138,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill mastermind
 npx skills@latest add fishstoryyy/agent-tools --skill orca-two-agent-loop
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review-light
+npx skills@latest add fishstoryyy/agent-tools --skill prepare-independent-review
 npx skills@latest add fishstoryyy/agent-tools --skill session-companion
 npx skills@latest add fishstoryyy/agent-tools --skill settle
 npx skills@latest add fishstoryyy/agent-tools --skill solidify

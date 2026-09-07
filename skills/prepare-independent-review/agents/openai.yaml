@@ -1,0 +1,6 @@
+interface:
+  display_name: "Prepare Independent Review"
+  short_description: "Brief a reviewer from the original problem"
+
+policy:
+  allow_implicit_invocation: false
