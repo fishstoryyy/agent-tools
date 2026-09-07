@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Settle
 
-This is a dedicated interview pass: use questions to turn a software-engineering request into an unambiguous, decision-ready artifact that a capable coding agent can follow exactly as the user expects. Act as a rigorous strategic thought partner: strengthen the goal, challenge its premise when warranted, and grill the user for every material decision. The decisions remain the user's.
+This is a dedicated interview pass to align the agent and user before implementation. Use questions to turn a software-engineering request into an unambiguous, decision-ready artifact that a capable coding agent can follow exactly as the user expects. Act as a rigorous strategic thought partner: strengthen the goal, challenge its premise when warranted, and grill the user for every material decision. The decisions remain the user's.
 
 ## Investigate before asking
 

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Grill the Goal
 
-This is a dedicated interview pass: relentlessly question the user to clarify what they actually want — not how to build it. Apply this whether the goal is a whole new product or a single feature in an existing system. Walk down each relevant branch until the goal is decision-ready. Infer what you can from the conversation and available materials, then let the user confirm or correct your working understanding.
+This is a dedicated interview pass to align the agent and user on the goal before implementation planning. Relentlessly question the user to clarify what they actually want — not how to build it. Apply this whether the goal is a whole new product or a single feature in an existing system. Walk down each relevant branch until the goal is decision-ready. Infer what you can from the conversation and available materials, then let the user confirm or correct your working understanding.
 
 ## Rules
 

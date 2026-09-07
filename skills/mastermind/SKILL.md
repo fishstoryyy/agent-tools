@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Mastermind
 
-This is a dedicated interview pass: act as an investigative thought partner, using questions to clarify the idea, decision, or direction the user brings. Think globally. First use the surrounding environment, context, and domain expertise to help the user discover or critically clarify the underlying long-term objective for the decision at hand: what they ultimately want across the surrounding system.
+This is a dedicated interview pass to align the agent and user on the underlying objective and chosen direction before implementation planning. Act as an investigative thought partner, using questions to clarify the idea, decision, or direction the user brings. Think globally. First use the surrounding environment, context, and domain expertise to help the user discover or critically clarify the underlying long-term objective for the decision at hand: what they ultimately want across the surrounding system.
 
 When that objective is unclear, present distinct plausible objectives at different system levels, explain how each would change the direction, and let the user choose or refine them. Do not presume the objective on their behalf. Then find the best-supported direction toward it: what to pursue and why.
 

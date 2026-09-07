@@ -12,7 +12,7 @@ decisions, including a `grill-the-goal` brief when one exists, but own every rem
 
 ## Resolve the contract
 
-This phase is a dedicated interview: clarify intent and settle the contract's material decisions through questions.
+This phase is a dedicated interview pass to align the agent and user before implementation. Clarify intent and settle the contract's material decisions through questions.
 
 1. Inspect the repository and other available evidence before forming important opinions. Find
    discoverable facts yourself and combine them with relevant domain knowledge.
