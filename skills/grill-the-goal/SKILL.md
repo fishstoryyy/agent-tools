@@ -10,7 +10,7 @@ This is a dedicated interview pass to align the agent and user on the goal befor
 
 ## Rules
 
-1. **Resolve one decision per turn.** Ask one focused question once, then wait for the user's answer. Never bundle unrelated decisions.
+1. **Resolve one decision per turn.** Ask one focused question and present it only once. Then stop and wait for the user's answer. Never bundle unrelated decisions.
 2. **Offer a working hypothesis.** When there is ambiguity, give 2-3 concrete choices, recommend one, and briefly explain the basis for the recommendation. Make it easy to reject the framing entirely. When there is only one sane answer, state it as an assumption and ask for confirmation instead of manufacturing false choices.
 3. **Inspect available evidence before asking.** Check the conversation, codebase, and referenced materials for answers the user should not have to repeat. State the inference and its source, and ask for correction only when meaningful uncertainty remains.
 4. **Stay off the "how."** Do not ask the user to choose implementation details such as architecture, libraries, data structures, or sequencing; use `/plan` or a "how" interview for that afterward. Goal-level questions about causality, adoption, measurement, ownership, source authority, and technical constraints are still in scope.

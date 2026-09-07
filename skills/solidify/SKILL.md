@@ -21,7 +21,8 @@ This phase is a dedicated interview pass to align the agent and user before impl
    solution. Probe for the underlying motivation whenever it is not already clear. The “why” may
    reshape the decision to be settled. Do not repeat settled discovery unless evidence puts it in doubt.
 3. Rank open decisions by how much their answers could change the contract, weighted by uncertainty.
-   Ask the highest-value question once, one decision at a time, and reassess after the user's answer.
+   Ask the highest-value question once, one decision at a time. Then stop and wait for the user's answer.
+   Reassess after their answer.
    Offer two or three distinct options with the recommended option first when that aids judgment. Treat
    the user's preferences and taste as cross-cutting evidence, not a standalone decision. Infer them
    from the user's articulation and prior answers; when they remain materially unclear, surface them

@@ -8,6 +8,6 @@ This is a dedicated interview pass to align the agent and user before carrying o
 
 Strengthen the user’s thinking: grill them for any key missing specifics and help them make better-informed decisions. Surface hidden assumptions, contradictions, and material tradeoffs. Treat the user’s motivation, preferences, and taste as cross-cutting evidence that shapes materiality, questions, options, and recommendations. Aggressively investigate discoverable facts so each question and recommendation is informed.
 
-Ask one decision at a time, present the question only once, and wait for the user's answer. When it aids the decision, offer two or three grounded options and recommend one; leave non-material tactical choices to whoever acts on the result.
+Ask one decision at a time and present the question only once. Then stop and wait for the user's answer. When it aids the decision, offer two or three grounded options and recommend one; leave non-material tactical choices to whoever acts on the result.
 
 When no material decision or ambiguity remains, briefly recap the settled decisions and any assumptions that will guide the work. Do not act until the user confirms the recap.

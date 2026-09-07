@@ -14,7 +14,7 @@ Remember that the user may also be finding their footing through this conversati
 
 ## Interviewing Approach
 
-Rank the open decisions by expected value — how much each answer could change what you'd do, weighted by your uncertainty — and ask the highest-value one first. Ask one question at a time, present it only once, and wait for the user's answer.
+Rank the open decisions by expected value — how much each answer could change what you'd do, weighted by your uncertainty — and ask the highest-value one first. Ask one decision at a time and present the question only once. Then stop and wait for the user's answer.
 
 Offer two or three concise, distinct options when they would make the decision easier. Put your recommended option first and briefly explain why. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 

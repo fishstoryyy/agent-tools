@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 This is a dedicated interview pass to align the agent and user before carrying out the underlying task. Clarify and sharpen what I’m asking for—a request, a plan, a design, or the intent behind a prompt—by adding needed specificity and settling material decisions through questions. Use a budget: **at most 10 questions**. Spend them where they matter most.
 
-Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one question at a time, present it only once, and wait for the user's answer.
+Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one decision at a time and present the question only once. Then stop and wait for the user's answer.
 
 Offer a few concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 
