@@ -12,4 +12,4 @@ Aggressively investigate discoverable facts so each question and recommendation 
 
 When no material decision or ambiguity remains, briefly recap the settled decisions and any assumptions that will guide the work. Do not act until the user confirms the recap.
 
-If execution nevertheless reveals a conflict with settled decisions or an unresolved material choice, bring it back to the user before proceeding on that point. This is a fallback, not a reason to leave foreseeable decisions unsettled.
+If execution nevertheless reveals a material conflict with settled decisions or an unresolved material choice, bring it back to the user before proceeding on that point. This is a fallback, not a reason to leave foreseeable decisions unsettled.
