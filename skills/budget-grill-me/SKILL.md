@@ -10,7 +10,7 @@ Rank the open decisions by expected value — how much the answer would change w
 
 Offer a few concise, distinct options when they would make the decision easier. Put your recommended option first. When options would be artificial, ask the question directly and include your recommended answer. Each answer reshapes the picture, so re-rank what's left before the next question.
 
-Finding discoverable _facts_ and developing informed options is your job, not mine. Before asking a question, aggressively inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask me for facts you can find yourself. Asking a question without thorough fact-finding is dangerous: it can steer the conversation in the wrong direction. A question grounded in deep domain understanding can instead add substantial value. The _decisions_ are mine: put each to me and wait.
+Finding discoverable _facts_ and developing informed options is your job, not mine. Before asking a question, aggressively and deeply inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask me for facts you can find yourself. Asking a question without thorough fact-finding is dangerous: it can steer the conversation in the wrong direction. A question grounded in deep domain understanding can instead add substantial value. The _decisions_ are mine: put each to me and wait.
 
 Stop the moment no remaining question would materially change what you'd do — don't spend the budget just because it's there. Six is the ceiling, not the target.
 

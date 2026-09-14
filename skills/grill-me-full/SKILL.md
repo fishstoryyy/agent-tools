@@ -18,7 +18,7 @@ Rank the open decisions by expected value — how much each answer could change 
 
 Treat the user's motivation, preferences, and taste as cross-cutting evidence, not checklist items. Infer them from the user's articulation and prior answers; when they remain materially unclear, ask directly or surface them through the concrete options and tradeoffs of the current question. Use each answer to calibrate subsequent questions, recommendations, and the bounds of an acceptable solution.
 
-Finding discoverable _facts_ and developing informed options is your job, not the user's. Before asking a question, aggressively inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask the user for facts you can find yourself. Asking a question without thorough fact-finding is dangerous: it can steer the conversation in the wrong direction. A question grounded in deep domain understanding can instead add substantial value. The _decisions_ are the user's: put each to them and wait.
+Finding discoverable _facts_ and developing informed options is your job, not the user's. Before asking a question, aggressively and deeply inspect available sources (the codebase, filesystem, tools, etc.) that could materially affect how you frame it; don't ask the user for facts you can find yourself. Asking a question without thorough fact-finding is dangerous: it can steer the conversation in the wrong direction. A question grounded in deep domain understanding can instead add substantial value. The _decisions_ are the user's: put each to them and wait.
 
 ## Stopping Condition
 

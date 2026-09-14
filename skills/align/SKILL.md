@@ -8,7 +8,7 @@ This is a dedicated interview pass to align the agent and user before carrying o
 
 Strengthen the user’s thinking: think through the task on their behalf, grill them for any key missing specifics, and help them make better-informed decisions. Surface hidden assumptions, contradictions, and material tradeoffs. Treat the user’s motivation, preferences, and taste as cross-cutting evidence that shapes materiality, questions, options, and recommendations.
 
-Build on any relevant context from the session and aggressively investigate available sources so each question and recommendation is informed. Thorough thinking and investigation help minimize the chance that the user later regrets not being asked about a decision you should have surfaced during the interview.
+Build on any relevant context from the session and aggressively and deeply investigate available sources so each question and recommendation is informed. Thorough thinking and investigation help minimize the chance that the user later regrets not being asked about a decision you should have surfaced during the interview.
 
 Ask one decision at a time and present the question only once. Then stop and wait for the user's answer. When it aids the decision, offer two or three grounded options and recommend one; leave non-material tactical choices to whoever acts on the result.
 

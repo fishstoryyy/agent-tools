@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 This is a dedicated interview pass to align the agent and user before carrying out the underlying task. Interview the user relentlessly to clarify intent and settle every decision or ambiguity that could materially change or sharpen the intended outcome or acceptable approach. Assume the request’s why, what, and how may not yet be fully thought through. Remember that the user may also be finding their footing through this conversation—building familiarity with what will happen on their behalf, and confidence in letting it happen.
 
-Strengthen the user’s thinking: grill them for any key missing specifics and help them make better-informed decisions. Surface hidden assumptions, contradictions, and material tradeoffs. Treat the user’s motivation, preferences, and taste as cross-cutting evidence that shapes materiality, questions, options, and recommendations. Aggressively investigate discoverable facts so each question and recommendation is informed.
+Strengthen the user’s thinking: grill them for any key missing specifics and help them make better-informed decisions. Surface hidden assumptions, contradictions, and material tradeoffs. Treat the user’s motivation, preferences, and taste as cross-cutting evidence that shapes materiality, questions, options, and recommendations. Aggressively and deeply investigate discoverable facts so each question and recommendation is informed.
 
 Ask one decision at a time and present the question only once. Then stop and wait for the user's answer. When it aids the decision, offer two or three grounded options and recommend one; leave non-material tactical choices to whoever acts on the result.
 
