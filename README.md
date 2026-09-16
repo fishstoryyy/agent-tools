@@ -95,7 +95,7 @@ agent-tools/
 | Skill | Description |
 | --- | --- |
 | [`adversarial-review`](skills/adversarial-review/SKILL.md) | Inline, evidence-grounded stress testing for plans, designs, and implementations. |
-| [`align`](skills/align/SKILL.md) | Thorough interview that builds on prior context and settled decisions, minimizes missed material questions, and surfaces material discoveries during implementation. |
+| [`align`](skills/align/SKILL.md) | Thorough investigation and interview that builds on prior context and settled decisions, minimizes missed material questions, and surfaces material discoveries during implementation. |
 | [`budget-grill-me`](skills/budget-grill-me/SKILL.md) | Budgeted interview (at most six questions) to sharpen the intent behind a prompt, plan, or design; ranks open decisions by expected value and stops early once nothing more would change what the agent does. |
 | [`build-context-to-do-something`](skills/build-context-to-do-something/SKILL.md) | Minimum-sufficient context prompts for capable fresh agents performing user-specified tasks. |
 | [`context-handoff`](skills/context-handoff/SKILL.md) | Tight, self-contained prompts for handing work to a fresh agent or session. |
