@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reconstruct the active human-readable branch of a Claude Code or OMP session.
+"""Reconstruct the active dialogue of a Claude Code, Codex, or OMP session.
 
 Ordinary tool chatter, meta records, abandoned rewind branches, and thinking
 (by default) are omitted. Interactive questions, recorded answers, meaningful
@@ -7,14 +7,17 @@ OMP reset boundaries, text, and image placeholders are preserved. Generated
 context summaries are optional. The input format is detected automatically.
 
 Usage:
-    parse_session.py SESSION.jsonl [--since CURSOR] [--include-thinking]
+    parse_session.py SESSION [--since CURSOR] [--include-thinking]
                                    [--include-context] [--include-sidechains]
+    parse_session.py --list-codex --cwd PROJECT
+
+    SESSION             JSONL path or Codex thread UUID (uses CODEX_HOME).
 
     --since CURSOR       Show active turns after the prior CURSOR. Stable record
                          IDs detect rewinds; a plain turn number also works.
     --cursor CURSOR      Alias for --since.
     --include-thinking   Include persisted assistant thinking blocks.
-    --include-context    Include generated Claude and OMP context summaries.
+    --include-context    Include generated context summaries.
     --include-sidechains Include embedded subagent turns and inline Claude
                          Agent/Task results. Separate subagent files are not
                          loaded.
@@ -31,9 +34,13 @@ the full active transcript is printed instead.
 
 import argparse
 import json
+from pathlib import Path
 import re
 import sys
 
+# Running the reader must not create installation/project artifacts.
+sys.dont_write_bytecode = True
+import codex_session
 
 _META_MARKERS = ("<local-command-stdout>", "<local-command-caveat>")
 _DROP_WRAPPERS = re.compile(
@@ -411,6 +418,9 @@ def extract_turn(
         include_context=False, include_sidechains=False,
         subagent_tool_ids=None):
     """Return a readable turn for the detected session format, or None."""
+    if session_format == "codex":
+        return codex_session.extract_turn(
+            obj, include_thinking, include_context, include_sidechains)
     if session_format == "claude":
         return extract_claude_turn(
             obj,
@@ -427,7 +437,7 @@ def extract_turn(
 def load_objects(session_path):
     """Load complete JSON objects, tolerating a live truncated final line."""
     try:
-        with open(session_path, "r", encoding="utf-8") as session_file:
+        with open(session_path, "rb") as session_file:
             raw_lines = session_file.readlines()
     except OSError as error:
         print(f"ERROR: cannot open session file: {error}", file=sys.stderr)
@@ -440,7 +450,7 @@ def load_objects(session_path):
             continue
         try:
             obj = json.loads(line)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeError):
             continue
         if not isinstance(obj, dict):
             continue
@@ -450,7 +460,10 @@ def load_objects(session_path):
 
 
 def detect_session_format(objects):
-    """Return claude/omp when the JSONL shape is recognized, else None."""
+    """Return the session provider when the JSONL shape is recognized."""
+    if any(obj.get("type") == "session_meta" and isinstance(obj.get("payload"), dict)
+           for obj in objects):
+        return "codex"
     if any(obj.get("type") == "session" and obj.get("id") for obj in objects):
         return "omp"
     if any(
@@ -626,6 +639,8 @@ def warn_about_branch_gaps(
         question_tool_ids, include_context, include_sidechains,
         subagent_tool_ids):
     """Warn when branch tracing may hide context for non-rewind reasons."""
+    if session_format == "codex":
+        return  # Codex loading validates lineage before constructing this tree.
     if active is None:
         print("WARN: could not trace the active branch; showing all turns",
               file=sys.stderr)
@@ -709,7 +724,9 @@ def parse_args():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("session", help="Path to the session .jsonl file")
+    parser.add_argument("session", nargs="?", help="Session JSONL path or Codex thread UUID")
+    parser.add_argument("--list-codex", action="store_true", help="List five recent Codex sessions")
+    parser.add_argument("--cwd", default=".", help="Project directory for --list-codex")
     parser.add_argument(
         "--since", "--cursor", dest="since", default=None, metavar="CURSOR",
         help="Show active turns after CURSOR (a stable ID or plain turn number)",
@@ -722,30 +739,52 @@ def parse_args():
     parser.add_argument(
         "--include-context",
         action="store_true",
-        help="Include generated Claude and OMP context summaries",
+        help="Include generated context summaries",
     )
     parser.add_argument(
         "--include-sidechains",
         action="store_true",
         help="Include embedded subagent turns and inline Claude Agent/Task results",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if bool(args.session) == args.list_codex:
+        parser.error("provide SESSION or --list-codex, but not both")
+    return args
 
 
 def main():
     args = parse_args()
-    objects = load_objects(args.session)
+    try:
+        if args.list_codex:
+            print(json.dumps(codex_session.list_sessions(args.cwd), ensure_ascii=False, indent=2))
+            return 0
+        session_path = Path(args.session).expanduser()
+        if codex_session.is_uuid(args.session) and not session_path.is_file():
+            session_path = codex_session.resolve_session(args.session)
+        if session_path.name.endswith(".zst"):
+            raise codex_session.CodexError("compressed rollouts are unsupported; supply JSONL")
+    except (codex_session.CodexError, OSError) as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
+    objects = load_objects(session_path)
     if objects is None:
         return 2
 
     session_format = detect_session_format(objects)
     if session_format is None:
         print(
-            "ERROR: unsupported session format; expected a Claude Code or OMP "
+            "ERROR: unsupported session format; expected a Claude Code, Codex, or OMP "
             "session JSONL file",
             file=sys.stderr,
         )
         return 2
+
+    if session_format == "codex":
+        try:
+            objects = codex_session.normalize(codex_session.load_lineage(session_path))
+        except (codex_session.CodexError, OSError) as error:
+            print(f"ERROR: {error}", file=sys.stderr)
+            return 2
 
     by_id = {
         node_id(obj, session_format): obj
@@ -785,7 +824,7 @@ def main():
         subagent_tool_ids,
     )
 
-    if active is not None and not turns:
+    if session_format != "codex" and active is not None and not turns:
         # A record whose parent is missing from the file traces to a branch
         # holding no dialogue. Show everything rather than a blank transcript.
         fallback_objects = select_active_objects(
@@ -871,7 +910,7 @@ def main():
             print(text)
             print()
 
-    cursor = turns[-1][4] if turns else ""
+    cursor = (active_objects[-1]["id"] if active_objects else "") if session_format == "codex" else (turns[-1][4] if turns else "")
     print(f"BRANCH_RESET={int(branch_reset)}")
     print(f"TURNS_TOTAL={len(turns)}")
     print(f"CURSOR={cursor}")
