@@ -77,6 +77,9 @@ agent-tools/
     strategize/
       SKILL.md
       agents/openai.yaml
+    task-story/
+      SKILL.md
+      agents/openai.yaml
     teach-me/
       SKILL.md
       agents/openai.yaml
@@ -116,6 +119,7 @@ agent-tools/
 | [`settle`](skills/settle/SKILL.md) | Explicit-only, rigorous interviewing that turns a software-engineering request into a decision-ready goal artifact without planning or implementation. |
 | [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for goal-driven implementation. |
 | [`strategize`](skills/strategize/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. Settles the strategic "how" and leaves tactical choices to whoever carries out the implementation. |
+| [`task-story`](skills/task-story/SKILL.md) | Explicit-only updates that append one or more succinct logical checkpoints to a shared storyline across coding sessions, preserving earlier entries. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
 | [`to-goal`](skills/to-goal/SKILL.md) | Explicit-only final gate that turns settled session decisions into an uncommitted, validated `goal.md` while preserving implementer freedom. |
 
@@ -148,6 +152,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill session-companion
 npx skills@latest add fishstoryyy/agent-tools --skill settle
 npx skills@latest add fishstoryyy/agent-tools --skill solidify
 npx skills@latest add fishstoryyy/agent-tools --skill strategize
+npx skills@latest add fishstoryyy/agent-tools --skill task-story
 npx skills@latest add fishstoryyy/agent-tools --skill teach-me
 npx skills@latest add fishstoryyy/agent-tools --skill to-goal
 ```
