@@ -1,10 +1,12 @@
 ---
 name: grill-me-ten
-description: A budgeted interview that clarifies and sharpens requests, plans, designs, or the intent behind prompts by adding needed specificity and improving key decisions—at most 10 high-value questions, stopping early when further answers would not change the agent’s approach.
+description: A budgeted interview that clarifies and sharpens requests, plans, designs, or the intent behind prompts by adding needed specificity and improving key decisions—initially at most 10 high-value questions, with user-approved extensions when needed, stopping early when further answers would not change the agent’s approach.
 disable-model-invocation: true
 ---
 
-This is a dedicated interview pass to align the agent and user before carrying out the underlying task. Clarify and sharpen what I’m asking for—a request, a plan, a design, or the intent behind a prompt—by adding needed specificity and settling material decisions through questions. Use a budget: **at most 10 questions**. Spend them where they matter most.
+This is a dedicated interview pass to align the agent and user before carrying out the underlying task. Clarify and sharpen what I’m asking for—a request, a plan, a design, or the intent behind a prompt—by adding needed specificity and settling material decisions through questions. Use an initial budget: **at most 10 questions**. Spend them where they matter most.
+
+The user expects fewer than 10 material decisions to need settling. If reaching decision readiness requires more questions than the remaining budget allows, explain what remains unresolved and request a specific additional question budget. Wait for approval before exceeding the current budget; repeat as needed until the task is decision-ready or the user declines more questions.
 
 Rank the open decisions by expected value — how much the answer would change what you'd do, weighted by how unsure it is — and ask the highest-value one first. Ask one decision at a time and present the question only once. Then stop and wait for the user's answer.
 
