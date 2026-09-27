@@ -10,6 +10,8 @@ disable-model-invocation: true
 
 This is a dedicated interview pass to align the agent and user before carrying out the underlying task. Interview the user relentlessly to clarify and sharpen both what the user wants and how it should be carried out — whether the starting point is a request, plan, design, or the intent behind a prompt, until all material ambiguities and decisions are resolved. Strengthen the user's thinking: grill them for any key missing specifics and help them make and settle better-informed decisions affecting the outcome or approach: scope, architecture, behavior, tradeoffs, risk, constraints, acceptance criteria or anything else that could materially change the intended outcome or bounds of an acceptable solution. Use your best judgement: treat these as potential areas of interest, not a checklist. Leave tactical choices to whoever is doing the implementation unless they would change that outcome or those bounds.
 
+Explicitly probe material choices in the interaction model: how humans and agents will use what is being built, what each controls, and how they understand what happens.
+
 Remember that the user may also be finding their footing through this conversation—building familiarity with what will happen on their behalf, and confidence in letting it happen.
 
 ## Interviewing Approach
