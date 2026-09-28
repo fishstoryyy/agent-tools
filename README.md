@@ -92,6 +92,10 @@ agent-tools/
       SKILL.md
       agents/openai.yaml
       scripts/validate-goal.py
+    to-spec/  # Lean outcome and acceptance-criteria specs
+      SKILL.md
+      agents/openai.yaml
+      scripts/validate-spec.py
   tools/
   templates/
   docs/
@@ -127,6 +131,7 @@ agent-tools/
 | [`task-story`](skills/task-story/SKILL.md) | Explicit-only updates that append one or more succinct logical checkpoints to a shared storyline across coding sessions, preserving earlier entries. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
 | [`to-goal`](skills/to-goal/SKILL.md) | Explicit-only final gate that turns settled session decisions into an uncommitted, validated `goal.md` while preserving implementer freedom. |
+| [`to-spec`](skills/to-spec/SKILL.md) | Explicit-only synthesis of settled decisions into a lean, validated, uncommitted `spec.md`: outcome and acceptance criteria, material boundaries as needed, and implementation and proof methods left open unless required. |
 
 ## Install
 
@@ -162,6 +167,8 @@ npx skills@latest add fishstoryyy/agent-tools --skill strategize
 npx skills@latest add fishstoryyy/agent-tools --skill task-story
 npx skills@latest add fishstoryyy/agent-tools --skill teach-me
 npx skills@latest add fishstoryyy/agent-tools --skill to-goal
+# Lean spec: outcome, acceptance criteria, and any material boundaries
+npx skills@latest add fishstoryyy/agent-tools --skill to-spec
 ```
 
 To list available skills before installing:

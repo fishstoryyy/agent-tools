@@ -1,0 +1,7 @@
+interface:
+  display_name: "To Spec"
+  short_description: "Turn settled decisions into a lean spec defining success."
+  default_prompt: "Use $to-spec to turn our settled decisions into a lean, validated spec.md with an outcome and acceptance criteria, preserving material boundaries and leaving implementation tactics open."
+
+policy:
+  allow_implicit_invocation: false
