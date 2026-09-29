@@ -1,0 +1,6 @@
+interface:
+  display_name: "Session Context"
+  short_description: "Load another session’s context, then carry out your task"
+
+policy:
+  allow_implicit_invocation: false

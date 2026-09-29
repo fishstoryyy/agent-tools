@@ -71,6 +71,14 @@ agent-tools/
         codex_session.py
         test_parse_session.py
         test_codex_session.py
+    session-context/
+      SKILL.md
+      agents/openai.yaml
+      scripts/
+        parse_session.py
+        codex_session.py
+        test_parse_session.py
+        test_codex_session.py
     settle/
       SKILL.md
       agents/openai.yaml
@@ -125,6 +133,7 @@ agent-tools/
 | [`prepare-adversarial-review-light`](skills/prepare-adversarial-review-light/SKILL.md) | Lightweight closed-loop handoff with concise prompts and a canonical Markdown review report. |
 | [`prepare-independent-review`](skills/prepare-independent-review/SKILL.md) | Explicit-only, short review prompt conveying the original problem and constraints; asks the reviewer to reason independently before inspecting the implementation. |
 | [`session-companion`](skills/session-companion/SKILL.md) | Live coach for a separate Claude Code, Codex, or OMP session: reconstructs dialogue, supports refreshes and Codex thread UUIDs, and helps you understand and steer the conversation. Allows isolated temporary research without modifying project/session files or messaging the other agent. |
+| [`session-context`](skills/session-context/SKILL.md) | Explicit-only context loading from another Claude Code, Codex, or OMP session, followed by the current task. Accepts a JSONL path or Codex thread UUID. |
 | [`settle`](skills/settle/SKILL.md) | Explicit-only, rigorous interviewing that turns a software-engineering request into a decision-ready goal artifact without planning or implementation. |
 | [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for goal-driven implementation. |
 | [`strategize`](skills/strategize/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. Settles the strategic "how" and leaves tactical choices to whoever carries out the implementation. |
@@ -161,6 +170,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill prepare-adversarial-review
 npx skills@latest add fishstoryyy/agent-tools --skill prepare-independent-review
 # Claude Code, Codex (JSONL path or thread UUID), and OMP
 npx skills@latest add fishstoryyy/agent-tools --skill session-companion
+npx skills@latest add fishstoryyy/agent-tools --skill session-context
 npx skills@latest add fishstoryyy/agent-tools --skill settle
 npx skills@latest add fishstoryyy/agent-tools --skill solidify
 npx skills@latest add fishstoryyy/agent-tools --skill strategize
