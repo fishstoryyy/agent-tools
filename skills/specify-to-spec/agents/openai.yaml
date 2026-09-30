@@ -1,0 +1,7 @@
+interface:
+  display_name: "Specify To Spec"
+  short_description: "Interview until task and execution are fully specified"
+  default_prompt: "Use $specify-to-spec to interview me until this task and its execution design are fully specified, then write the specification for my review."
+
+policy:
+  allow_implicit_invocation: false
