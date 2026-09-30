@@ -1,0 +1,6 @@
+interface:
+  display_name: "Codex Wording Review"
+  short_description: "Check wording fits Codex source conventions"
+  default_prompt: "Use $codex-wording-review to check whether this wording fits Codex naturally before I put it into use."
+policy:
+  allow_implicit_invocation: false

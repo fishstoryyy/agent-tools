@@ -21,6 +21,10 @@ agent-tools/
     build-context-to-do-something/
       SKILL.md
       agents/openai.yaml
+    codex-wording-review/
+      SKILL.md
+      agents/openai.yaml
+      references/codex-source-map.md
     context-handoff/
       SKILL.md
       agents/openai.yaml
@@ -118,15 +122,16 @@ agent-tools/
 | Skill | Description |
 | --- | --- |
 | [`adversarial-review`](skills/adversarial-review/SKILL.md) | Inline, evidence-grounded stress testing for plans, designs, and implementations. |
-| [`align`](skills/align/SKILL.md) | Thorough investigation and interview that builds on prior context and settled decisions, minimizes missed material questions, and surfaces material discoveries during implementation. |
+| [`align`](skills/align/SKILL.md) | Thorough investigation and interview that builds on prior context and settled decisions, uses concrete layout and interaction walkthroughs to build user understanding, minimizes missed material questions, and surfaces material discoveries during implementation. |
 | [`budget-grill-me`](skills/budget-grill-me/SKILL.md) | Budgeted interview (at most six questions) to sharpen the intent behind a prompt, plan, or design; ranks open decisions by expected value and stops early once nothing more would change what the agent does. |
 | [`build-context-to-do-something`](skills/build-context-to-do-something/SKILL.md) | Minimum-sufficient context prompts for capable fresh agents performing user-specified tasks. |
+| [`codex-wording-review`](skills/codex-wording-review/SKILL.md) | Explicit-only, source-grounded review of prompt or skill wording for natural fit with Codex CLI conventions; resolves delivery channel, referent binding, mechanism pinning, and convention collisions against the exact model and prompt set the user runs. |
 | [`context-handoff`](skills/context-handoff/SKILL.md) | Tight, self-contained prompts for handing work to a fresh agent or session. |
 | [`create-session-handoff`](skills/create-session-handoff/SKILL.md) | Durable workspace handoffs for continuing active work in a fresh session. |
 | [`explain-like-rookie`](skills/explain-like-rookie/SKILL.md) | Source-verified, rookie-friendly explanations that pair claims with their practical significance and use concrete examples or a TL;DR when helpful. |
 | [`grill-me`](skills/grill-me/SKILL.md) | Lean, unbudgeted interview that settles every material decision or ambiguity before acting, strengthening the user's thinking while integrating motivation, preferences, and taste. |
 | [`grill-me-companion`](skills/grill-me-companion/SKILL.md) | Deprecated — superseded by [`session-companion`](skills/session-companion/SKILL.md). Read-only coaching for understanding and steering a separate Claude Code or OMP session. |
-| [`grill-me-full`](skills/grill-me-full/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. |
+| [`grill-me-full`](skills/grill-me-full/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; uses concrete layout and interaction walkthroughs, ranks open decisions by expected value, and continues until the agent and user share the same understanding. |
 | [`grill-the-goal`](skills/grill-the-goal/SKILL.md) | Goal-focused interviewing that produces decision-ready briefs by clarifying relevant context, actors, sources, outcomes, success evidence, tradeoffs, constraints, and unknowns without entering implementation planning. |
 | [`grill-me-light`](skills/grill-me-light/SKILL.md) | Budgeted interview (at most ten questions) that aligns intent and defines an evidence-backed acceptance contract before execution, then maps each criterion to validation results. |
 | [`grill-me-ten`](skills/grill-me-ten/SKILL.md) | Budgeted interview (initially at most ten questions, with user-approved extensions) to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and stops early once nothing more would change what the agent does. |
@@ -155,6 +160,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill adversarial-review
 npx skills@latest add fishstoryyy/agent-tools --skill align
 npx skills@latest add fishstoryyy/agent-tools --skill budget-grill-me
 npx skills@latest add fishstoryyy/agent-tools --skill build-context-to-do-something
+npx skills@latest add fishstoryyy/agent-tools --skill codex-wording-review
 npx skills@latest add fishstoryyy/agent-tools --skill context-handoff
 npx skills@latest add fishstoryyy/agent-tools --skill create-session-handoff
 npx skills@latest add fishstoryyy/agent-tools --skill explain-like-rookie
