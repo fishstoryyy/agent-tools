@@ -11,7 +11,6 @@ from pathlib import Path
 SCHEMA_LINE = "- **Schema:** `to-spec/v1`"
 CONTRACT_PREAMBLE = [
     "> This file is the contract guiding the work. Do not edit or commit it.",
-    "> Never satisfy a requirement technically while violating its intended outcome.",
     "> Pausing should be rare. If strong evidence shows the agreed requirements must change, the user",
     '> explicitly requests `update_goal(status="paused")`. Explain the',
     "> evidence and proposed revision, then stop; the user decides and resumes the goal.",
