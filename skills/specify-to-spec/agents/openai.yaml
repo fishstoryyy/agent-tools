@@ -1,7 +1,7 @@
 interface:
   display_name: "Specify To Spec"
-  short_description: "Interview until task and execution are fully specified"
-  default_prompt: "Use $specify-to-spec to interview me until this task and its execution design are fully specified, then write the specification for my review."
+  short_description: "Settle consequential choices and write a complete spec"
+  default_prompt: "Use $specify-to-spec to interview me about consequential task and execution-design choices, resolve routine implementation details yourself, and write a complete specification for my review."
 
 policy:
   allow_implicit_invocation: false

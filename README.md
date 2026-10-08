@@ -91,7 +91,7 @@ agent-tools/
       agents/openai.yaml
       references/goal-schema.md
       scripts/validate-goal.py
-    specify-to-spec/
+    specify-to-spec/  # Complete specs with consequential user choices and agent-resolved details
       SKILL.md
       agents/openai.yaml
     strategize/
@@ -144,7 +144,7 @@ agent-tools/
 | [`session-context`](skills/session-context/SKILL.md) | Explicit-only context loading from another Claude Code, Codex, or OMP session, followed by the current task. Accepts a JSONL path or Codex thread UUID. |
 | [`settle`](skills/settle/SKILL.md) | Explicit-only, rigorous interviewing that turns a software-engineering request into a decision-ready goal artifact without planning or implementation. |
 | [`solidify`](skills/solidify/SKILL.md) | Resolve every material change decision, then create a validated `goal/v1` contract in a goal-only Git commit ready for goal-driven implementation. |
-| [`specify-to-spec`](skills/specify-to-spec/SKILL.md) | Explicit-only interview until the task and execution design are fully specified; builds user understanding through file, directory-layout, and interaction walkthroughs, exempts only unambiguous inferences, and writes a specification file revised until approved. |
+| [`specify-to-spec`](skills/specify-to-spec/SKILL.md) | Explicit-only interview that settles consequential task and execution-design choices with the user, resolves routine details, builds understanding through layout, interface, and workflow walkthroughs, and writes a complete specification revised until approved. |
 | [`strategize`](skills/strategize/SKILL.md) | Thorough, unbudgeted interview to sharpen a request, plan, design, or prompt intent; ranks open decisions by expected value and continues until the agent and user share the same understanding. Settles the strategic "how" and leaves tactical choices to whoever carries out the implementation. |
 | [`task-story`](skills/task-story/SKILL.md) | Explicit-only updates that append one or more succinct logical checkpoints to a shared storyline across coding sessions, preserving earlier entries. |
 | [`teach-me`](skills/teach-me/SKILL.md) | Evidence-grounded teaching that builds a deep, plain-language mental model, explains each claim's implications, and commits to judgments with honest caveats. |
@@ -183,6 +183,7 @@ npx skills@latest add fishstoryyy/agent-tools --skill session-companion
 npx skills@latest add fishstoryyy/agent-tools --skill session-context
 npx skills@latest add fishstoryyy/agent-tools --skill settle
 npx skills@latest add fishstoryyy/agent-tools --skill solidify
+# Complete spec: user settles consequential choices; agent resolves routine details
 npx skills@latest add fishstoryyy/agent-tools --skill specify-to-spec
 npx skills@latest add fishstoryyy/agent-tools --skill strategize
 npx skills@latest add fishstoryyy/agent-tools --skill task-story
